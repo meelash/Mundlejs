@@ -1,7 +1,7 @@
 (function() {
   var Test1, Test2;
 
-  Test2 = require('ModuleTest/Test2.js');
+  Test2 = require('ExampleModules/Test2.js');
 
   Test1 = (function() {
 
@@ -11,9 +11,9 @@
 
     Test1.prototype.loadAsyncModule = function() {
       var Test3;
-      Test3 = require('ModuleTest/Test3.js');
+      Test3 = require('ExampleModules/Test3.js');
       console.log('Test3 available synchronously', Test3);
-      return require('ModuleTest/Test4.js', function(err, Test4) {
+      return require('ExampleModules/Test4.js', function(err, Test4) {
         if (err) {
           return console.warn(err);
         } else {

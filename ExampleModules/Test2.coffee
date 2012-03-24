@@ -1,4 +1,4 @@
-#@ sourceURL=ModuleTest/Test2.js
+#@ sourceURL=ExampleModules/Test2.js
 class Test2
   
   
