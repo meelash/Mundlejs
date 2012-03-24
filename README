@@ -1,3 +1,4 @@
-Proof of concept of a module loader.
+Module bundler, cacher, and client-side loader
 
-This project is no longer maintained here. For an up-to-date version, please see www.github.com/meelash/mundlejs
+Demonstration:
+http://screencast.com/t/nOU53BRYUAX
