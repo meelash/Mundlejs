@@ -1,29 +1,36 @@
-addRequireClientSide = ->
-  bongo.api.Require::require = (path, callback)->
-    if (exported = cache.modules[path])?
+window.require = (path, callback)->
+  if (exported = cache.modules[path])?
+    callback? null, exported
+    return exported
+  else if (source = cache.fetched[path])?
+    do ->
+      module = exports : {}
+      console.log "#{path} eval'ed"
+      eval source
+      exported = cache.modules[path] = module.exports
       callback? null, exported
       return exported
-    else if (source = cache.fetched[path])?
-      do ->
-        module = exports : {}
-        # exports = module.exports
-        console.log "#{path} eval'ed"
-        eval source
-        exported = cache.modules[path] = module.exports
-        callback? null, exported
-        return exported
-    else
-      @serverRequire path, cache.cached, (err, sources)->
-        for own subPath, source of sources
-          console.log "#{subPath} fetched"
-          cache.fetched[subPath] = source
-          cache.cached[subPath] = yes
-        callback null, require path
+  else
+    serverRequire path, (err, sources)->
+      for own subPath, source of sources
+        console.log "#{subPath} fetched"
+        cache.fetched[subPath] = source
+        cache.cached[subPath] = yes
+      callback? null, require path
 
-  cache =
-    modules : {}
-    fetched : {}
-    cached  : {}
+serverRequire = (path, callback)->
+  request = new XMLHttpRequest()
+  request.open('GET', "http://127.0.0.1:1337/#{path}?#{cacheDiffString()}", true)
+  request.setRequestHeader 'clientid', 'lakjsdflkjasld'
+  request.responseType = 'text'
+  request.onload = ->
+    callback null, JSON.parse request.response
+  request.send()
 
-  requireObj = new bongo.api.Require
-  window.require = requireObj.require.bind requireObj
+cacheDiffString = ->
+  (Object.keys cache.cached).join '=1&' + '=1'
+
+cache =
+  modules : {}
+  fetched : {}
+  cached  : {}
