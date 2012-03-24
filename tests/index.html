@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Module Loader</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+</head>
+
+<body class="home loading">
+  <script type="text/javascript" src="client.js"></script>
+  <script type="text/javascript">
+    console.log('In five seconds, we will be asynchronously loading Test1 and all its synchronous dependencies');
+    setTimeout(function(){
+      require('Test1.js', test1LoadedCallback);
+    }, 5000);
+    
+    test1LoadedCallback = function(err,Test1){
+      console.log('Notice all the synchronous dependencies of Test 1 are fetched in one bundle, with Test1');
+      console.log('Only those dependencies that are needed right away are evaled');
+      
+      console.log('When we call test1.loadAsynModule (in 5 seconds), Test3 will be evaled (it has already been fetched in the same bundle with Test1)');
+      setTimeout(function(){
+        test1 = new Test1;
+        test1.loadAsyncModule();
+        console.log('There\'s Test3, Test4 and dependencies coming asynchronously in one bundle');
+      }, 5000);
+    };
+  </script>
+</body>
+</html>

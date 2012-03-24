@@ -1,4 +1,4 @@
-#@ sourceURL=ExampleModules/Test5.js
+#@ sourceURL=Test5.js
 class Test5
   
 module.exports = Test5
