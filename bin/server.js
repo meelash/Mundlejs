@@ -1,48 +1,68 @@
 (function() {
-  var cachePath, cachedPkgs, findAndLoadSyncRequires, fs, loaded, queue, readAndParseFile, resolvePath, serverRequire;
+  var cachePath, cachedPkgs, findAndLoadSyncRequires, findRequires, fs, loaded, queue, readAndParseFile, resolvePath, serverRequire;
+
   fs = require('fs');
+
+  findRequires = require('find-requires');
+
   cachedPkgs = {};
+
   loaded = {};
+
   queue = 0;
+
   serverRequire = function(path, loadedModules, callback) {
-    var results;
+    var errors, results;
     loaded = loadedModules;
     queue = 0;
     results = {};
-    return readAndParseFile(path, function(path, contents) {
+    errors = null;
+    return readAndParseFile(path, function(err, path, contents) {
       results[path] = contents;
-      if (queue === 0) {
-        return callback(null, results);
-      }
+      if (err) (errors || (errors = [])).push(err);
+      if (queue === 0) return callback(errors, results);
     });
   };
+
   readAndParseFile = function(path, callback) {
     var contents;
-    if (loaded[path]) {
-      return;
-    }
+    if (loaded[path]) return;
     queue++;
-    contents = fs.readFileSync(resolvePath(path), 'utf8');
-    loaded[path] = true;
-    findAndLoadSyncRequires(contents, callback);
-    queue--;
-    return callback(path, contents);
+    try {
+      contents = fs.readFileSync(resolvePath(path), 'utf8');
+      loaded[path] = true;
+      findAndLoadSyncRequires(contents, callback);
+      queue--;
+      return callback(null, path, contents);
+    } catch (err) {
+      queue--;
+      return callback(err, path, '');
+    }
   };
+
   findAndLoadSyncRequires = function(contents, callback) {
-    var line, lines, requireLine, results, _i, _len, _results;
-    lines = contents.split('\n');
-    results = [];
+    var dependencies, dependency, syncRequire, _i, _len, _results;
+    dependencies = findRequires(contents, {
+      raw: true
+    });
     _results = [];
-    for (_i = 0, _len = lines.length; _i < _len; _i++) {
-      line = lines[_i];
-      requireLine = line.match(/require\('(.*)'\)/);
-      _results.push(requireLine != null ? readAndParseFile(requireLine[1], callback) : void 0);
+    for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
+      dependency = dependencies[_i];
+      if ((syncRequire = dependency.value) != null) {
+        _results.push(readAndParseFile(syncRequire, callback));
+      } else {
+        _results.push(void 0);
+      }
     }
     return _results;
   };
+
   resolvePath = function(path) {
     return "./" + path;
   };
+
   cachePath = function(path) {};
+
   module.exports = serverRequire;
+
 }).call(this);

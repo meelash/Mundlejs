@@ -20,8 +20,14 @@
         return exported;
       })();
     } else {
-      return serverRequire(path, function(err, sources) {
-        var source, subPath;
+      return serverRequire(path, function(errors, sources) {
+        var err, source, subPath, _i, _len;
+        if (errors != null) {
+          for (_i = 0, _len = errors.length; _i < _len; _i++) {
+            err = errors[_i];
+            if (err != null) console.warn(err);
+          }
+        }
         for (subPath in sources) {
           if (!__hasProp.call(sources, subPath)) continue;
           source = sources[subPath];
@@ -41,7 +47,9 @@
     request.setRequestHeader('clientid', 'lakjsdflkjasld');
     request.responseType = 'text';
     request.onload = function() {
-      return callback(null, JSON.parse(request.response));
+      var response;
+      response = JSON.parse(request.response);
+      return callback(response.err, response.results);
     };
     return request.send();
   };

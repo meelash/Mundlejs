@@ -10,5 +10,7 @@ class Test1
       if err then console.warn err
       else
         window.test4 = new Test4
+    testNonLiteral = 'Test7.js'
+    Test7 = require testNonLiteral
 
 module.exports = Test1

@@ -28,7 +28,10 @@ window.require = (path, callback)->
       callback? null, exported
       return exported
   else
-    serverRequire path, (err, sources)->
+    serverRequire path, (errors, sources)->
+      if errors?
+        for err in errors when err?
+          console.warn err
       for own subPath, source of sources
         console.log "#{subPath} fetched"
         cache.fetched[subPath] = source
@@ -41,7 +44,8 @@ serverRequire = (path, callback)->
   request.setRequestHeader 'clientid', 'lakjsdflkjasld'
   request.responseType = 'text'
   request.onload = ->
-    callback null, JSON.parse request.response
+    response = JSON.parse request.response
+    callback response.err, response.results
   request.send()
 
 cacheDiffString = ->

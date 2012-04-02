@@ -19,6 +19,6 @@ index = fs.readFileSync './index.html'
       path = parsedUrl.pathname[1...]
       clientCacheDiff = parsedUrl.query
       serverRequire path, clientCacheDiff, (err, results)->
-        res.end JSON.stringify results
+        res.end JSON.stringify {err, results}
 ).listen 1337, '127.0.0.1'
 console.log 'Server running at http://127.0.0.1:1337/'

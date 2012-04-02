@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 fs = require 'fs'
+findRequires = require 'find-requires'
 
 cachedPkgs = {}
 loaded = {}
@@ -25,27 +26,31 @@ serverRequire = (path, loadedModules, callback)->
   loaded = loadedModules
   queue = 0
   results = {}
-  readAndParseFile path, (path, contents)->
+  errors = null
+  readAndParseFile path, (err, path, contents)->
     results[path] = contents
+    (errors or=[]).push err if err
     if queue is 0
-      callback null, results
+      callback errors, results
 
 readAndParseFile = (path, callback)->
   return if loaded[path]
   queue++
-  contents = fs.readFileSync (resolvePath path), 'utf8'
-  loaded[path] = yes
-  findAndLoadSyncRequires contents, callback
-  queue--
-  callback path, contents
+  try
+    contents = fs.readFileSync (resolvePath path), 'utf8'
+    loaded[path] = yes
+    findAndLoadSyncRequires contents, callback
+    queue--
+    callback null, path, contents
+  catch err
+    queue--
+    callback err, path, ''
 
 findAndLoadSyncRequires = (contents, callback)->
-  lines = contents.split '\n'
-  results = []
-  for line in lines
-    requireLine = (line.match /require\('(.*)'\)/)
-    if requireLine?
-      readAndParseFile requireLine[1], callback
+  dependencies = findRequires contents, raw : yes
+  for dependency in dependencies
+    if (syncRequire = dependency.value)?
+      readAndParseFile syncRequire, callback
 
 resolvePath = (path)->
   "./#{path}"
