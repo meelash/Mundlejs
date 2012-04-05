@@ -6,7 +6,7 @@ url = require('url');
 
 fs = require('fs');
 
-serverRequire = require('../bin/server.js');
+serverRequire = require('../lib/server.js');
 
 index = fs.readFileSync('./index.html');
 
@@ -18,7 +18,7 @@ index = fs.readFileSync('./index.html');
     });
     return res.end(index);
   } else if (req.url === '/client.js') {
-    clientJs = fs.readFileSync('../bin/client.js');
+    clientJs = fs.readFileSync('../lib/client.js');
     res.writeHead(200, {
       'Content-Type': 'text/script'
     });

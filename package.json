@@ -1,0 +1,23 @@
+{
+  "name": "mundle",
+  "version": "0.1.0",
+  "description": "A client-side module loader with server-side bundler and cacher",
+  "keywords": ["module loader", "require", "bundler", "exports", "modules"],
+  "author": "Saleem Abdul Hamid <meelash@gmail.com>",
+  "licenses": [{"type": "GPL-3.0", "url": "http://www.opensource.org/licenses/GPL-3.0"}],
+  "repositories": [
+         {
+              "type": "git", 
+              "url": "http://github.com/meelash/Mundlejs"
+         }
+  ],
+  "main": "lib/server",
+  "directories.lib": "lib",
+  "dependencies": {
+    "find-requires": "0.1.x"
+  },
+  "bugs": {
+    "mail": "meelash@gmail.com",
+    "url": "https://github.com/meelash/Mundlejs/issues"
+  }
+}
