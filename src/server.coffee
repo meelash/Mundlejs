@@ -25,6 +25,7 @@ findRequires = require 'find-requires'
 cachedPkgs = {}
 loaded = {}
 queue = 0
+basePath = './'
 
 serverRequire = (path, loadedModules, callback)->
   loaded = loadedModules
@@ -36,6 +37,9 @@ serverRequire = (path, loadedModules, callback)->
     (errors or=[]).push err if err
     if queue is 0
       callback errors, results
+
+serverRequire.setBasePath = (path)->
+  basePath = path
 
 readAndParseFile = (path, callback)->
   return if loaded[path]
@@ -57,9 +61,8 @@ findAndLoadSyncRequires = (contents, callback)->
       readAndParseFile syncRequire, callback
 
 resolvePath = (path)->
-  "./#{path}"
+  "#{basePath}#{path}.js"
 
 cachePath = (path)->
   
-
 module.exports = serverRequire

@@ -19,32 +19,39 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
-window.require = (path, callback)->
+requestHostname = window.location.hostname
+requestPort = window.location.port
+requestPath = ''
+
+window.require = require = (path, callback)->
   if (exported = cache.modules[path])?
     callback? null, exported
     return exported
   else if (source = cache.fetched[path])?
     do ->
       module = exports : {}
-      console.log "#{path} eval'ed"
       eval source
       exported = cache.modules[path] = module.exports
       callback? null, exported
       return exported
   else
     serverRequire path, (errors, sources)->
+      # console.log path
+      # console.log Object.keys sources
       if errors?
         for err in errors when err?
           console.warn err
       for own subPath, source of sources
-        console.log "#{subPath} fetched"
         cache.fetched[subPath] = source
         cache.cached[subPath] = yes
       callback? null, require path
 
+require.setBasePath = (path)->
+  requestPath = path.replace /^\//, ''
+
 serverRequire = (path, callback)->
   request = new XMLHttpRequest()
-  request.open('GET', "http://127.0.0.1:1337/#{path}?#{cacheDiffString()}", true)
+  request.open('GET', "http://#{requestHostname}:#{requestPort}/#{requestPath}#{path}?#{cacheDiffString()}", true)
   request.setRequestHeader 'clientid', 'lakjsdflkjasld'
   request.responseType = 'text'
   request.onload = ->
