@@ -53,7 +53,7 @@ serverRequire = (path, callback)->
   request.send()
 
 cacheDiffString = ->
-  (Object.keys cache.cached).join '=1&' + '=1'
+  ((Object.keys cache.cached).join '=1&') + '=1'
 
 cache =
   modules : {}
