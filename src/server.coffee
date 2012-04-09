@@ -14,6 +14,10 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Some portions Copyright (C) 2012 Koding, Inc. under the MIT License
+# http://www.opensource.org/licenses/mit-license.php
+#
 
 fs = require 'fs'
 findRequires = require 'find-requires'
