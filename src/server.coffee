@@ -24,50 +24,48 @@ path = require 'path'
 findRequires = require 'find-requires'
 
 cachedPkgs = {}
-loaded = {}
-queue = 0
 basePath = '/'
 
-serverRequire = (path, loadedModules, callback)->
-  loaded = loadedModules
-  queue = 0
-  results = {}
-  errors = null
-  readAndParseFile path, basePath, (err, path, contents)->
-    if (safePath = sanitizePath path).length is 0
-      results[path] = contents
-    else
-      results[safePath] = contents
-    (errors or=[]).push err if err
-    if queue is 0
-      callback errors, results
+class Mundle
+  constructor:(loadedModules)->
+    @loaded = loadedModules
+    @queue = 0
+  
+  require:(path,callback)->
+    results = {}
+    errors = null
+    @readAndParseFile path, basePath, (err, path, contents)->
+      if (safePath = sanitizePath path).length is 0
+        results[path] = contents
+      else
+        results[safePath] = contents
+      (errors or=[]).push err if err
+      if @queue is 0
+        callback errors, results
 
-serverRequire.setBasePath = (relPath)->
-  basePath = path.resolve relPath
+  readAndParseFile:(path, parent, callback)->
+    try
+      path = resolvePath path, parent
+    catch err
+      return callback.call @, err, path, ''
 
-readAndParseFile = (path, parent, callback)->
-  try
-    path = resolvePath path, parent
-  catch err
-    return callback err, path, ''
-    
-  return if loaded[path]
-  queue++
-  try
-    contents = fs.readFileSync (path), 'utf8'
-    loaded[path] = yes
-    findAndLoadSyncRequires path, contents, callback
-    queue--
-    callback null, path, contents
-  catch err
-    queue--
-    callback err, path, ''
+    return if @loaded[path]
+    @queue++
+    try
+      contents = fs.readFileSync (path), 'utf8'
+      @loaded[path] = yes
+      @findAndLoadSyncRequires path, contents, callback
+      @queue--
+      callback.call @, null, path, contents
+    catch err
+      @queue--
+      callback.call @, err, path, ''
 
-findAndLoadSyncRequires = (filePath, contents, callback)->
-  dependencies = findRequires contents, raw : yes
-  for dependency in dependencies
-    if (syncRequire = dependency.value)?
-      readAndParseFile syncRequire, (path.dirname filePath), callback
+  findAndLoadSyncRequires:(filePath, contents, callback)->
+    dependencies = findRequires contents, raw : yes
+    for dependency in dependencies
+      if (syncRequire = dependency.value)?
+        @readAndParseFile syncRequire, (path.dirname filePath), callback
 
 resolvePath = (relPath, parent)->
   if /^(.|..)\//.test relPath
@@ -90,6 +88,13 @@ sanitizePath = (path)->
   sanitizedPath
 
 cachePath = (path)->
+    
+serverRequire = (path, loadedModules, callback)->
+  mundle = new Mundle loadedModules
+  mundle.require path, callback
+
+serverRequire.setBasePath = (relPath)->
+  basePath = path.resolve relPath
 
 serverRequire.setBasePath './'
   
