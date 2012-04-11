@@ -67,7 +67,7 @@ class Module
     else if /^\//.test path
       path
     else
-      path += '.js'
+      path = "/#{path}.js"
     path
 
   parent = (path)->

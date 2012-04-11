@@ -79,6 +79,9 @@ resolvePath = (relPath, parent)->
       absPath
   else
     absPath = path.join basePath, relPath
+    unless /^\//.test relPath
+      absPath += '.js'
+  absPath
 
 sanitizePath = (path)->
   sanitizedPath = ''

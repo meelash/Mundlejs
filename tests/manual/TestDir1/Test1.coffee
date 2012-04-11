@@ -17,5 +17,9 @@ class Test1
     require '../../unauthorizedSync'
     require '../../unauthorizedAsync', (err, unauthed)->
       console.log arguments
+    require 'MissingModule', (err, MissingModule)->
+      console.log 'module by name only', MissingModule
+    Test9 = require 'Test9'
+    console.log 'module by name only', Test9
 
 module.exports = Test1

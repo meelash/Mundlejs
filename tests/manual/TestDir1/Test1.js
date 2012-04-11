@@ -8,7 +8,7 @@
     function Test1() {}
 
     Test1.prototype.loadAsyncModule = function() {
-      var Test3, Test7, testNonLiteral;
+      var Test3, Test7, Test9, testNonLiteral;
       Test3 = require('./Test3.js');
       require('./Test4.js', function(err, Test4) {
         if (err) {
@@ -23,9 +23,14 @@
         return console.log('async Test8', Test8);
       });
       require('../../unauthorizedSync');
-      return require('../../unauthorizedAsync', function(err, unauthed) {
+      require('../../unauthorizedAsync', function(err, unauthed) {
         return console.log(arguments);
       });
+      require('MissingModule', function(err, MissingModule) {
+        return console.log('module by name only', MissingModule);
+      });
+      Test9 = require('Test9');
+      return console.log('module by name only', Test9);
     };
 
     return Test1;
