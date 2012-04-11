@@ -20,49 +20,77 @@
 #
 
 fs = require 'fs'
+path = require 'path'
 findRequires = require 'find-requires'
 
 cachedPkgs = {}
 loaded = {}
 queue = 0
-basePath = './'
+basePath = '/'
 
 serverRequire = (path, loadedModules, callback)->
   loaded = loadedModules
   queue = 0
   results = {}
   errors = null
-  readAndParseFile path, (err, path, contents)->
-    results[path] = contents
+  readAndParseFile path, basePath, (err, path, contents)->
+    if (safePath = sanitizePath path).length is 0
+      results[path] = contents
+    else
+      results[safePath] = contents
     (errors or=[]).push err if err
     if queue is 0
       callback errors, results
 
-serverRequire.setBasePath = (path)->
-  basePath = path
+serverRequire.setBasePath = (relPath)->
+  basePath = path.resolve relPath
 
-readAndParseFile = (path, callback)->
+readAndParseFile = (path, parent, callback)->
+  try
+    path = resolvePath path, parent
+  catch err
+    return callback err, path, ''
+    
   return if loaded[path]
   queue++
   try
-    contents = fs.readFileSync (resolvePath path), 'utf8'
+    contents = fs.readFileSync (path), 'utf8'
     loaded[path] = yes
-    findAndLoadSyncRequires contents, callback
+    findAndLoadSyncRequires path, contents, callback
     queue--
     callback null, path, contents
   catch err
     queue--
     callback err, path, ''
 
-findAndLoadSyncRequires = (contents, callback)->
+findAndLoadSyncRequires = (filePath, contents, callback)->
   dependencies = findRequires contents, raw : yes
   for dependency in dependencies
     if (syncRequire = dependency.value)?
-      readAndParseFile syncRequire, callback
+      readAndParseFile syncRequire, (path.dirname filePath), callback
 
-resolvePath = (path)->
-  "#{basePath}#{path}.js"
+resolvePath = (relPath, parent)->
+  if /^(.|..)\//.test relPath
+    if parent
+      absPath = path.join parent, relPath
+    else
+      absPath = path.join basePath, relPath
+    if (sanitizePath absPath).length is 0
+      throw 'Unauthorized attempt to access file'
+    else
+      absPath
+  else
+    absPath = path.join basePath, relPath
+
+sanitizePath = (path)->
+  sanitizedPath = ''
+  re = new RegExp "(^#{basePath}\/*)(.*)"
+  path.replace re, (str, p1, p2)->
+    sanitizedPath = "/#{p2}"
+  sanitizedPath
 
 cachePath = (path)->
+
+serverRequire.setBasePath './'
   
 module.exports = serverRequire

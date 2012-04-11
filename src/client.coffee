@@ -19,34 +19,70 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
+class Module
+  constructor:(@path)->
+    @exports = {}
+  
+  runInContext:(source)->
+    module = @
+    exports = module.exports
+    require = module.require.bind module
+    eval source
+    module.exports
+  
+  require:(path, callback)->
+    path = @resolvePath path
+    if (exported = cache.modules[path])?
+      callback? null, exported
+      return exported
+    else if (source = cache.fetched[path])?
+      do ->
+        module = new Module path
+        exported = cache.modules[path] = module.runInContext source
+        callback? null, exported
+        return exported
+    else
+      serverRequire path, (errors, sources)->
+        # console.log path
+        # console.log Object.keys sources
+        if errors?
+          for err in errors when err?
+            console.warn err
+        for own subPath, source of sources
+          cache.fetched[subPath] = source
+          cache.cached[subPath] = yes
+        callback? null, require path
+  
+  resolvePath:(path)->
+    if /^(.|..)\//.test path
+      components = path.split '/'
+      path = parent @path
+      while components.length > 0
+        switch component = (components.splice 0, 1)[0]
+          when '..'
+            path = parent path
+          when '.'
+          else
+            path += "/#{component}"
+    else if /^\//.test path
+      path
+    else
+      path += '.js'
+    path
+
+  parent = (path)->
+    ar = path.split '/'
+    ar.pop()
+    ar.join '/'
+
+baseModule = (new Module '')
+window.require = baseModule.require.bind baseModule
+
 requestHostname = window.location.hostname
 requestPort = window.location.port
 requestPath = ''
 
-window.require = require = (path, callback)->
-  if (exported = cache.modules[path])?
-    callback? null, exported
-    return exported
-  else if (source = cache.fetched[path])?
-    do ->
-      module = exports : {}
-      eval source
-      exported = cache.modules[path] = module.exports
-      callback? null, exported
-      return exported
-  else
-    serverRequire path, (errors, sources)->
-      # console.log path
-      # console.log Object.keys sources
-      if errors?
-        for err in errors when err?
-          console.warn err
-      for own subPath, source of sources
-        cache.fetched[subPath] = source
-        cache.cached[subPath] = yes
-      callback? null, require path
-
-require.setBasePath = (path)->
+window.require.setRequestPath = (path)->
   requestPath = path.replace /^\//, ''
 
 serverRequire = (path, callback)->

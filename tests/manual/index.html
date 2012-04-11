@@ -13,7 +13,7 @@
   <script type="text/javascript">
     console.log('In five seconds, we will be asynchronously loading Test1 and all its synchronous dependencies');
     setTimeout(function(){
-      require('Test1.js', test1LoadedCallback);
+      require('./TestDir1/Test1.js', test1LoadedCallback);
     }, 5000);
     
     test1LoadedCallback = function(err,Test1){

@@ -1,7 +1,8 @@
 http = require 'http'
 url = require 'url'
 fs = require 'fs'
-serverRequire = require '../lib/server.js'
+serverRequire = require '../../lib/server.js'
+serverRequire.setBasePath './'
 
 # Server
 index = fs.readFileSync './index.html'
@@ -10,7 +11,7 @@ index = fs.readFileSync './index.html'
     res.writeHead 200, 'Content-Type': 'text/html'
     res.end index
   else if req.url is '/client.js' 
-    clientJs = fs.readFileSync '../lib/client.js'
+    clientJs = fs.readFileSync '../../lib/client.js'
     res.writeHead 200, 'Content-Type' : 'text/script'
     res.end clientJs
   else
