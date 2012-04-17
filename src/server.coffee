@@ -49,11 +49,11 @@ class Mundle
     catch err
       return callback.call @, err, path, ''
 
-    return if @loaded[path]
+    return if @loaded[sanitizePath path]
     @queue++
     try
       contents = fs.readFileSync (path), 'utf8'
-      @loaded[path] = yes
+      @loaded[sanitizePath path] = yes
       @findAndLoadSyncRequires path, contents, callback
       @queue--
       callback.call @, null, path, contents
