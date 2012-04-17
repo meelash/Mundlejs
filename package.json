@@ -1,6 +1,6 @@
 {
   "name": "mundle",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A client-side module loader with server-side bundler and cacher",
   "keywords": ["module loader", "require", "bundler", "exports", "modules"],
   "author": "Saleem Abdul Hamid <meelash@gmail.com>",

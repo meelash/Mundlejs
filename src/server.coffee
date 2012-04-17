@@ -26,11 +26,13 @@ findRequires = require 'find-requires'
 cachedPkgs = {}
 basePath = '/'
 
+# An instance of class Mundle is created for each client-side request
 class Mundle
   constructor:(loadedModules)->
     @loaded = loadedModules
     @queue = 0
-  
+ 
+  # calls readAndParseFile and collects errors and file contents from it and the required file and all dependencies
   require:(path,callback)->
     results = {}
     errors = null
@@ -43,6 +45,7 @@ class Mundle
       if @queue is 0
         callback errors, results
 
+  # recursively read and parse file and dependencies
   readAndParseFile:(path, parent, callback)->
     try
       path = resolvePath path, parent
@@ -61,12 +64,14 @@ class Mundle
       @queue--
       callback.call @, err, path, ''
 
+  # parses a file for dependencies
   findAndLoadSyncRequires:(filePath, contents, callback)->
     dependencies = findRequires contents, raw : yes
     for dependency in dependencies
       if (syncRequire = dependency.value)?
         @readAndParseFile syncRequire, (path.dirname filePath), callback
 
+# utility to resolve relative paths from the client and block access below the base path
 resolvePath = (relPath, parent)->
   if /^(.|..)\//.test relPath
     if parent
@@ -83,6 +88,7 @@ resolvePath = (relPath, parent)->
       absPath += '.js'
   absPath
 
+# utility to convert absolute paths to relative paths for syncing with the client
 sanitizePath = (path)->
   sanitizedPath = ''
   re = new RegExp "(^#{basePath}\/*)(.*)"
@@ -91,11 +97,22 @@ sanitizePath = (path)->
   sanitizedPath
 
 cachePath = (path)->
-    
+
+# API
+#
+# serverRequire(path, loadedModules, callback)
+# path <string> path to file that you want to load along with its dependencies
+# loadedModules <object> relativePath:boolean array of modules that have already been loaded
+# callback <function(errors, modules)> array of errors and object with relative paths and contents of required file and all dependencies 
 serverRequire = (path, loadedModules, callback)->
   mundle = new Mundle loadedModules
   mundle.require path, callback
 
+# serverRequire.setBasePath(relPath)
+# Set the base path relative to which all client-passed paths will be resolved.
+# This is also the limit of client-side visibility, e.g. client cannot ever load a file '/..'
+# This is the root as far as the client is concerned.
+# Defaults to whatever directory serverRequire is run from. 
 serverRequire.setBasePath = (relPath)->
   basePath = path.resolve relPath
 

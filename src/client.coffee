@@ -19,6 +19,11 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
+# Each file that is loaded is evaluated in the context of a new Module instance
+# Each instance has the variables module, exports, and require in scope
+# module is a reference to the module instance for that file
+# exports is the exports object which can be changed in the initial evaluation of the file to define the module api
+# require will require a new file (with the option of a relative path, relative to the parent of this file)
 class Module
   constructor:(@path)->
     @exports = {}
@@ -30,6 +35,9 @@ class Module
     eval source
     module.exports
   
+  # If module has not been fetched, fetch it and all its dependencies asynchronously and execute just it immediately, then callback its exports
+  # If module has been fetched but not executed, execute it, then return and callback its exports
+  # If module has already been executed, just return and callback its exports
   require:(path, callback)->
     path = @resolvePath path
     if (exported = cache.modules[path])?
@@ -52,7 +60,8 @@ class Module
           cache.fetched[subPath] = source
           cache.cached[subPath] = yes
         callback? null, require path
-  
+ 
+  # All paths get resolved to 'absolute' paths from the client-side 'root' which is the base path set on the server-side component 
   resolvePath:(path)->
     if /^(.|..)\//.test path
       components = path.split '/'
@@ -85,6 +94,8 @@ requestPath = ''
 window.require.setRequestPath = (path)->
   requestPath = path.replace /^\//, ''
 
+# xhr request to server
+# looks like: http://<location.hostname>:<location.port>/<requestPath></file requested>?alreadyLoadedModule=1&anotherAlreadyLoaded=1&.....
 serverRequire = (path, callback)->
   request = new XMLHttpRequest()
   request.open('GET', "http://#{requestHostname}:#{requestPort}/#{requestPath}#{path}?#{cacheDiffString()}", true)
@@ -98,6 +109,9 @@ serverRequire = (path, callback)->
 cacheDiffString = ->
   ((Object.keys cache.cached).join '=1&') + '=1'
 
+# modules - {file:reference to exports from already executed files}
+# fetched - {file:string of the text of an already fetched file}
+# cached - {file:boolean whether it has been fetched or not}
 cache =
   modules : {}
   fetched : {}
