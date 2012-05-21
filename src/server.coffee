@@ -21,6 +21,7 @@
 
 fs = require 'fs'
 path = require 'path'
+url = require 'url'
 findRequires = require 'find-requires'
 
 cachedPkgs = {}
@@ -112,10 +113,57 @@ serverRequire = (path, loadedModules, callback)->
 # Set the base path relative to which all client-passed paths will be resolved.
 # This is also the limit of client-side visibility, e.g. client cannot ever load a file '/..'
 # This is the root as far as the client is concerned.
-# Defaults to whatever directory serverRequire is run from. 
+# Defaults to whatever directory serverRequire is run from.
+# relPath <String> the path, either absolute or relative from process.cwd()
 serverRequire.setBasePath = (relPath)->
   basePath = path.resolve relPath
 
 serverRequire.setBasePath './'
+
+# serverRequire.listen(server)
+# serverRequire.listen(port, options, callback)
+# if a server is passed, start listening on that server
+# if a port is passed, create a server with options and start it listening on that part, then callback
+# server <HTTP(S)Server>
+# port <Number>
+# options <Object> options to be passed to http server
+# callback <Function>
+serverRequire.listen = (server, options, callback)->
+  if 'function' is typeof options
+    callback = options
+    options = {}
+
+  if 'undefined' is typeof server
+    # create a server that listens on port 80
+    server = 80
+
+  if 'number' is typeof server
+    # if a port number is passed
+    port = server
+
+    if options && options.key
+      server = require('https').createServer options
+    else
+      server = require('http').createServer()
+    
+    server.on 'request', (req, res)->
+      res.writeHead 200
+      res.end 'Welcome to Mundlejs!'
+
+    server.listen port, callback
+
+  server.on 'request', (req, res)->
+    if req.url is '/mundlejs/require.js' 
+      clientJs = fs.readFileSync "#{__dirname}/client.js"
+      res.writeHead 200, 'Content-Type' : 'text/javascript'
+      res.end clientJs
+    else if req.url.search /^\/mundlejs\// isnt -1
+      parsedUrl = url.parse req.url[8...], yes
+      if req.headers.clientid?
+        filePath = parsedUrl.pathname[1...]
+        clientCacheDiff = parsedUrl.query
+        serverRequire filePath, clientCacheDiff, (err, results)->
+          res.end JSON.stringify {err, results}
+  server
   
 module.exports = serverRequire

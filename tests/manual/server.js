@@ -1,45 +1,26 @@
 (function() {
-  var fs, http, index, serverRequire, url;
+  var fs, http, index, server, serverRequire;
 
   http = require('http');
 
-  url = require('url');
-
   fs = require('fs');
 
-  serverRequire = require('../../lib/server.js');
+  serverRequire = require('../../lib/server');
 
   serverRequire.setBasePath('./');
 
   index = fs.readFileSync('./index.html');
 
-  (http.createServer(function(req, res) {
-    var clientCacheDiff, clientJs, parsedUrl, path;
+  (server = http.createServer(function(req, res) {
     if (req.url === '/') {
       res.writeHead(200, {
         'Content-Type': 'text/html'
       });
       return res.end(index);
-    } else if (req.url === '/client.js') {
-      clientJs = fs.readFileSync('../../lib/client.js');
-      res.writeHead(200, {
-        'Content-Type': 'text/script'
-      });
-      return res.end(clientJs);
-    } else {
-      parsedUrl = url.parse(req.url, true);
-      if (req.headers.clientid != null) {
-        path = parsedUrl.pathname.slice(1);
-        clientCacheDiff = parsedUrl.query;
-        return serverRequire(path, clientCacheDiff, function(err, results) {
-          return res.end(JSON.stringify({
-            err: err,
-            results: results
-          }));
-        });
-      }
     }
   })).listen(1337, '127.0.0.1');
+
+  serverRequire.listen(server);
 
   console.log('Server running at http://127.0.0.1:1337/');
 

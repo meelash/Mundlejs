@@ -89,16 +89,12 @@ window.require = baseModule.require.bind baseModule
 
 requestHostname = window.location.hostname
 requestPort = window.location.port
-requestPath = ''
-
-window.require.setRequestPath = (path)->
-  requestPath = path.replace /^\//, ''
 
 # xhr request to server
-# looks like: http://<location.hostname>:<location.port>/<requestPath></file requested>?alreadyLoadedModule=1&anotherAlreadyLoaded=1&.....
+# looks like: http://<location.hostname>:<location.port>/mundlejs</file requested>?alreadyLoadedModule=1&anotherAlreadyLoaded=1&.....
 serverRequire = (path, callback)->
   request = new XMLHttpRequest()
-  request.open('GET', "http://#{requestHostname}:#{requestPort}/#{requestPath}#{path}?#{cacheDiffString()}", true)
+  request.open('GET', "http://#{requestHostname}:#{requestPort}/mundlejs#{path}?#{cacheDiffString()}", true)
   request.setRequestHeader 'clientid', 'lakjsdflkjasld'
   request.responseType = 'text'
   request.onload = ->
