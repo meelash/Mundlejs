@@ -9,28 +9,22 @@ https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
 ## Installation
 npm install mundle
 
-## Usage
+## Basic Usage
+### Server-side
+    serverRequire = require('mundle');
+    serverRequire.setBasePath('pathToMakeIntoTheClient-sideRoot');
+    serverRequire.listen(3000);
+
 ### Client-side
-* Include node_modules/mundle/lib/client.js on your page
-* require('somePath', function(error,exportsFromSomePath){console.log(exportsFromSomePath);})
+    <script type='text/javascript' src='mundlejs/require.js'></script>
+    <script type='text/javascript'>
+        require('somePath',function(error,exportsFromSomePath){
+            console.log('Yayyy!');
+        };
+    </script>
 * somePath can be
   * 'moduleName' resolves to server-side basePath/moduleName.js
   * './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
-
-### Server-side
-* serverRequire = require('mundle')
-* serverRequire.setBasePath('pathToMakeTheClient-sideRoot')
-* capture your client-side requests and pass them to serverRequire:
-  * serverRequire('path',alreadyLoadedModules,callback)
-  * alreadyLoadedModules is an object with fileName:boolean key:value pairs
-  * callback is a function(errors,results) where
-    * errors is an array of any errors
-    * results is an object with fileName:contents of the required file and all dependencies
-    * inside callback you should respond to the client-side request with a json stringified {errors:errors, results:results}
-
-## Advanced usage
-* client-side- window.require.setRequestPath adds a path to the xhr call:
-  * http://<location.hostname>:<location.port>/<requestPath></file requested>?alreadyLoadedModule=1&anotherAlreadyLoaded=1&.....
 
 ## Contribute
 * Suggestions of how to make this more useful/robust/pluginable/available to more people very welcome
