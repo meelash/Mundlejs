@@ -1,10 +1,18 @@
 serverRequire = require 'mundle'
-Browser = require 'zombie'
+phantom = require 'phantom'
 http = require 'http'
 https = require 'https'
 fs = require 'fs'
 path = require 'path'
 {exec} = require 'child_process'
+
+# 
+# 
+# 
+# SERVER TESTS
+# 
+# 
+#
 
 serverTypes =
   HTTPServer : (callback)->
@@ -31,16 +39,29 @@ createTestFile = (filePath, text)->
 exports.testListen = 
   clientServed : (test)->
     serversTested = 0
-    test.expect 1 * (Object.keys serverTypes).length
-  
-    for serverType, serverInit of serverTypes
-      do (serverType)->
-        server = serverInit ->
-          {address, port} = server.address()
-          Browser.visit "http://#{address}:#{port}/mundlejs/require.js", (e, browser)->
-            test.equal browser.errors.length, 0, "serving client code at #{address}:#{port} over #{serverType}"
-            test.done() if ++serversTested is (Object.keys serverTypes).length
-            server.close()
+    test.expect (Object.keys serverTypes).length
+    
+    phantom.create (ph)->
+      for serverType, serverInit of serverTypes
+        do (serverType)->
+          server = serverInit ->
+            {address, port} = server.address()
+            ph.createPage (page)->
+              page.set 'onError', (msg, trace)->
+                console.log msg
+                trace.forEach (item)->
+                  console.log "  #{item.file}:#{item.line}"
+              page.includeJs "http://#{address}:#{port}/mundlejs/require.js", ->
+                # test.equal status, 'success', 'serving client code at #{address}:#{port} over #{serverType}'
+                page.evaluate ->
+                  window.require?
+                , (exists)->
+                  test.ok exists, 'require function is available'
+                  test.done() if ++serversTested is (Object.keys serverTypes).length
+                  server.close()
+                  ph.exit()
+      console.warn "Test fails because phantomjs doesn't have function.prototype.bind"
+      console.warn "http://code.google.com/p/phantomjs/issues/detail?id=522"
 
 exports.testSetBasePath =
   relativePath : (test)->
@@ -65,8 +86,78 @@ exports.testSetBasePath =
       test.deepEqual results, {'/testFile.js' : 'Hello, mundlejs!!'}, errors
       test.done()
 
+# Unify the error reporting and formatting across all kinds of errors.
+# 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
+
+exports.testErrorFormatting =
+  setUp : (callback)->
+    serverRequire.setBasePath __dirname
+    callback()
+    
+  noErrors : (test)->
+    test.expect 1
+    createTestFile "#{__dirname}/test2.js", ""
+    serverRequire 'test2', {}, (errors,results)->
+      test.ifError errors
+      test.done()
+    
+  fileNotFoundError : (test)->
+    test.expect 2
+    serverRequire '/doesnt/exist.js', {}, (errors,results)->
+      test.equal errors['/doesnt/exist.js'].message, 'No such file or directory'
+      test.equal errors['/doesnt/exist.js'].path, '/doesnt/exist.js'
+      test.done()
+  
+  nestedFileNotFoundError : (test)->
+    test.expect 2
+    createTestFile "#{__dirname}/test1.js", "require('/doesnt/exist.js')"
+    serverRequire 'test1', {}, (errors,results)->
+      test.equal errors['/doesnt/exist.js'].message, 'No such file or directory'
+      test.equal errors['/doesnt/exist.js'].path, '/doesnt/exist.js'
+      test.done()
+  
+  accessAboveRoot1 : (test)->
+    test.expect 2
+    serverRequire '../something/Hidden.js', {}, (errors,results)->
+      test.equal errors['../something/Hidden.js'].message, 'Attempt to access file above client-root'
+      test.equal errors['../something/Hidden.js'].path, '../something/Hidden.js'
+      test.done()
+  
+  accessAboveRoot2 : (test)->
+    test.expect 2
+    serverRequire '/../something/Hidden.js', {}, (errors,results)->
+      test.equal errors['/../something/Hidden.js'].message, 'Attempt to access file above client-root'
+      test.equal errors['/../something/Hidden.js'].path, '/../something/Hidden.js'
+      test.done()
+  
+  nestedAccessAboveRoot : (test)->
+    test.expect 2
+    createTestFile "#{__dirname}/test2.js", "require('../something/Hidden.js')"
+    serverRequire 'test2', {}, (errors,results)->
+      test.equal errors['../something/Hidden.js'].message, 'Attempt to access file above client-root'
+      test.equal errors['../something/Hidden.js'].path, '../something/Hidden.js'
+      test.done()
+
+# exports.restrictAccessToRootAndBelow = (test)->
+#   serverRequire '../something.js'
+#   serverRequire '../hiddenDirectory/something.js'
+#   serverRequire '/../something' # FIXME!!! this one fails!
+#   etc...
 
 # 
 # 
 # exports.testServerRequire =
 #   
+
+
+# 
+# 
+# 
+# CLIENT TESTS
+# 
+# 
+#
+
+# exports.testBrowserResponseToErrors
+
+# test keeping the errors with the file for the future attempts at requiring that

@@ -10,6 +10,7 @@ task 'test', 'Run the automated tests', ()->
     fs.mkdirSync './tmp/mundleTest/node_modules/mundle'
     fs.mkdirSync './tmp/mundleTest/node_modules/mundle/lib'
     exec 'cp ./package.json ./tmp/mundleTest/node_modules/mundle'
+    exec 'cp ./tests/index.html ./tmp/mundleTest'
   
     exec 'coffee -o ./tmp/mundleTest/node_modules/mundle/lib -c ./src/*.coffee
     && coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee', ()->

@@ -39,16 +39,18 @@ class Mundle
     errors = null
     @readAndParseFile path, basePath, (err, path, contents)->
       if (safePath = sanitizePath path).length is 0
-        results[path] = contents
-      else
-        results[safePath] = contents
-      (errors or=[]).push err if err
+        safePath = path
+      results[safePath] = contents
+      if err
+        (errors or= {})[safePath] = err
+        err.path = safePath
       if @queue is 0
         callback errors, results
 
   # recursively read and parse file and dependencies
   readAndParseFile:(path, parent, callback)->
     try
+      # resolve client-side safe-path to server-side absolute path
       path = resolvePath path, parent
     catch err
       return callback.call @, err, path, ''
@@ -63,7 +65,10 @@ class Mundle
       callback.call @, null, path, contents
     catch err
       @queue--
-      callback.call @, err, path, ''
+      {errno, code, syscall} = err
+      console.error err
+      error = {message : 'No such file or directory', errno, code, syscall}
+      callback.call @, error, path, ''
 
   # parses a file for dependencies
   findAndLoadSyncRequires:(filePath, contents, callback)->
@@ -74,20 +79,29 @@ class Mundle
 
 # utility to resolve relative paths from the client and block access below the base path
 resolvePath = (relPath, parent)->
+  # relative requires in the synchronous dependencies are handled in this branch
   if /^(.|..)\//.test relPath
     if parent
       absPath = path.join parent, relPath
     else
       absPath = path.join basePath, relPath
-    if (sanitizePath absPath).length is 0
-      throw 'Unauthorized attempt to access file'
-    else
-      absPath
+  
+  # All asynchronous, client-side requires will come to this branch, along with module-name require in the synchronous dependencies
   else
     absPath = path.join basePath, relPath
+    
+    # module-name requires in the synchronous dependencies
     unless /^\//.test relPath
       absPath += '.js'
-  absPath
+  # security- ensure that it is never possible to get anything or see any server
+  # paths above the client-root (basePath)
+  if (sanitizePath absPath).length is 0
+    throw {
+      message : 'Attempt to access file above client-root'
+      path    : relPath
+    }
+  else
+    absPath
 
 # utility to convert absolute paths to relative paths for syncing with the client
 sanitizePath = (path)->
@@ -147,8 +161,9 @@ serverRequire.listen = (server, options, callback)->
       server = require('http').createServer()
     
     server.on 'request', (req, res)->
-      res.writeHead 200
-      res.end 'Welcome to Mundlejs!'
+      unless req.url is '/mundlejs/require.js'
+        res.writeHead 200
+        res.end 'Welcome to Mundlejs!'
 
     server.listen port, callback
 

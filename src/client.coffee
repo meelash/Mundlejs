@@ -62,6 +62,9 @@ class Module
         callback? null, require path
  
   # All paths get resolved to 'absolute' paths from the client-side 'root' which is the base path set on the server-side component 
+  # relative path, e.g. '../foo.js' in a file at '/foo/bar/bar.js' resolves to '/foo/foo.js'
+  # "absolute" path, e.g. '/foo.js' resolves to '/foo.js'
+  # module name, e.g. 'foo' resolves to '/foo.js'
   resolvePath:(path)->
     if /^(.|..)\//.test path
       components = path.split '/'
