@@ -98,7 +98,7 @@ requestPort = window.location.port
 serverRequire = (path, callback)->
   request = new XMLHttpRequest()
   request.open('GET', "http://#{requestHostname}:#{requestPort}/mundlejs#{path}?#{cacheDiffString()}", true)
-  request.setRequestHeader 'clientid', 'lakjsdflkjasld'
+  # request.setRequestHeader 'clientid', 'lakjsdflkjasld'
   request.responseType = 'text'
   request.onload = ->
     response = JSON.parse request.response

@@ -161,7 +161,7 @@ serverRequire.listen = (server, options, callback)->
       server = require('http').createServer()
     
     server.on 'request', (req, res)->
-      unless req.url is '/mundlejs/require.js'
+      if (req.url.search /^\/mundlejs\//) is -1
         res.writeHead 200
         res.end 'Welcome to Mundlejs!'
 
@@ -172,13 +172,13 @@ serverRequire.listen = (server, options, callback)->
       clientJs = fs.readFileSync "#{__dirname}/client.js"
       res.writeHead 200, 'Content-Type' : 'text/javascript'
       res.end clientJs
-    else if req.url.search /^\/mundlejs\// isnt -1
-      parsedUrl = url.parse req.url[8...], yes
-      if req.headers.clientid?
-        filePath = parsedUrl.pathname[1...]
-        clientCacheDiff = parsedUrl.query
-        serverRequire filePath, clientCacheDiff, (err, results)->
-          res.end JSON.stringify {err, results}
+    else if (req.url.search /^\/mundlejs\//) isnt -1
+      parsedUrl = url.parse req.url[9...], yes
+      # if req.headers.clientid?
+      filePath = parsedUrl.pathname[1...]
+      clientCacheDiff = parsedUrl.query
+      serverRequire filePath, clientCacheDiff, (err, results)->
+        res.end JSON.stringify {err, results}
   server
   
 module.exports = serverRequire
