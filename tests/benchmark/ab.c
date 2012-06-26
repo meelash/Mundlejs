@@ -53,12 +53,12 @@
                         // but a loooong warm-up and no intermediate output
                         // nor any statistics...
                         //http://redmine.lighttpd.net/projects/weighttp/wiki
-//#define TRACK_ERRORS    // makes things slower but signals HTTP errors
+#define TRACK_ERRORS    // makes things slower but signals HTTP errors
 
 //      Modify the IP ADDRESS & PORT below to match your server values:
 
 #define IP   "127.0.0.1"
-#define PORT "8080"
+#define PORT "3000"
 
 //       100.html is a 100-byte file initially designed to avoid testing the
 //       kernel (I wanted to compare the CPU efficiency of each Web server).
@@ -71,7 +71,7 @@
 //       low ITER[ations] value usually gives lower performances):
 
 #define FROM       0 // range to cover (1 - 1,000 concurrent clients)
-#define TO      1000 // range to cover (1 - 1,000 concurrent clients)
+#define TO       100 // range to cover (1 - 1,000 concurrent clients)
 #define STEP      10 // number of concurrency steps we actually skip
 #define ITER      10 // number of iterations (3: worse, average, best)
 #define KEEP_ALIVES  // comment this for no-HTTP Keep-Alive tests
@@ -91,7 +91,9 @@
 //       Select (uncomment) the URL that you want to test:
 //
 // ---- Static files ----------------------------------------------------------
-#define URL "/100.html"
+// #define URL "/~saleemabdulhamid/test.js" // for apache
+#define URL "/test.js" // for connect
+// #define URL "/mundlejs/KDApplications/Home.kdapplication/AppController" // for mundlejs
 //#define URL "/?fractal"
 
 // ---- G-WAN/C ---------------------------------------------------------------
@@ -332,7 +334,7 @@ typedef unsigned __int64 u64;
 # include <arpa/inet.h>
 # include <ctype.h>
 # include <errno.h>
-# include <linux/major.h>
+// # include <linux/major.h>
 # include <netinet/in.h>
 # include <netdb.h>
 # include <unistd.h>
@@ -781,7 +783,9 @@ int cpu_type(FILE *fo)
       
       fclose(f);
    }
-
+   
+   nbr_cores = 8;
+   
    if(nbr_cores > 0)
       nbr_cpu = nbr_cores;
    
@@ -908,7 +912,7 @@ int main(int argc, char *argv[])
       th_resources(&res_args);
    }
    
-   fprintf(fo, "\n" CLI_NAME " -n 1000000 -c [%u-%u step:%d] "
+   fprintf(fo, "\n" CLI_NAME " -n 1000 -c [%u-%u step:%d] "
 #ifdef IBM_APACHEBENCH
                "-S -d "
 #endif               
@@ -932,6 +936,7 @@ int main(int argc, char *argv[])
 
    for(i = FROM; i <= TO; i += STEP)
    {
+     printf("%d of %d\n", i, TO);
 #ifdef IBM_APACHEBENCH
       // ApacheBench makes it straight for you since you can directly tell
       // the 'concurrency' and 'duration' you wish:
@@ -991,7 +996,7 @@ int main(int argc, char *argv[])
 #endif                    
                , i?i:1, i?i:1);
 #elif defined LIGHTY_WEIGHTTP
-      sprintf(str, "weighttp -n 1000000 -c %d -t %u %s "
+      sprintf(str, "weighttp -n 1000 -c %d -t %u %s "
                    "-H \"Accept-Encoding: gzip\" "
                    "\"http://" IP ":" PORT
                    URL "\""
