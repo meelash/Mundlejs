@@ -29,9 +29,9 @@ serverTypes =
 
 createTestFile = (filePath, text)->
   makePath = (dirPath)->
-    unless path.existsSync (parent = path.dirname dirPath)
+    unless fs.existsSync (parent = path.dirname dirPath)
       makePath parent
-    fs.mkdirSync dirPath unless path.existsSync dirPath
+    fs.mkdirSync dirPath unless fs.existsSync dirPath
   
   makePath path.dirname filePath
   fs.writeFileSync filePath, text
