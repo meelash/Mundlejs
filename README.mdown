@@ -29,6 +29,7 @@ npm install mundle
 ## Contribute
 * Suggestions of how to make this more useful/robust/pluginable/available to more people very welcome
 * Improve compatibility with Commonjs module specification
+* Performance
 * Bug reports
 * Pull requests
 
@@ -38,6 +39,9 @@ npm install mundle
   * server-side
       * dependency trees
       * actual bundles
+
+## Blog posts
+* http://meelash.blogspot.com/2012/06/preparing-to-optimize-mundlejs.html - first benchmarks
 
 
 Copyright (C) 2012 Saleem Abdul Hamid   
