@@ -176,7 +176,7 @@ serverRequire.listen = (server, options, callback)->
     else if (req.url.search /^\/mundlejs\//) isnt -1
       parsedUrl = url.parse req.url[9...], yes
       # if req.headers.clientid?
-      filePath = parsedUrl.pathname[1...]
+      filePath = '/' + parsedUrl.pathname[1...]
       clientCacheDiff = parsedUrl.query
       serverRequire filePath, clientCacheDiff, (err, results)->
         res.end JSON.stringify {err, results}

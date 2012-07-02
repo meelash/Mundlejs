@@ -93,7 +93,7 @@
 // ---- Static files ----------------------------------------------------------
 // #define URL "/~saleemabdulhamid/test.js" // for apache
 // #define URL "/test.js" // for connect
-#define URL "/mundlejs/KDApplications/Home.kdapplication/AppController" // for mundlejs
+#define URL "/mundlejs/KDApplications/Home.kdapplication/AppController.js" // for mundlejs
 //#define URL "/?fractal"
 
 // ---- G-WAN/C ---------------------------------------------------------------
