@@ -24,7 +24,7 @@ path = require 'path'
 url = require 'url'
 findRequires = require 'find-requires'
 
-cachedPkgs = {}
+pkgCache = {}
 indexCache = {}
 fileCache = {}
 basePath = '/'
@@ -113,6 +113,14 @@ sanitizePath = (path)->
     sanitizedPath = "/#{p2}"
   sanitizedPath
 
+getPackageCache = (filePath, clientCacheDiff)->
+  filePath = resolvePath filePath, basePath
+  index = filePath + (Object.keys clientCacheDiff).sort()
+  return pkgCache[index] or index
+
+addPackageCache = (index, data)->
+  pkgCache[index] = cache = new Buffer (JSON.stringify data)
+  return cache
 
 # API
 #
@@ -178,8 +186,15 @@ serverRequire.listen = (server, options, callback)->
       # if req.headers.clientid?
       filePath = '/' + parsedUrl.pathname[1...]
       clientCacheDiff = parsedUrl.query
-      serverRequire filePath, clientCacheDiff, (err, results)->
-        res.end JSON.stringify {err, results}
-  server
+      if (cache = getPackageCache filePath, clientCacheDiff) instanceof Buffer
+        res.writeHead 200, 'Content-Type' : 'text/javascript'
+        res.end cache.toString()
+      else
+        cacheIndex = cache
+        serverRequire filePath, clientCacheDiff, (err, results)->
+          cache = addPackageCache cacheIndex, {err, results}
+          res.writeHead 200, 'Content-Type' : 'text/javascript'
+          res.end cache
+  return server
   
 module.exports = serverRequire

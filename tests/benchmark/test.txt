@@ -5,24 +5,14 @@ Machine: 1 x 8-Core CPU(s) Darwin x86_64 vDarwin Kernel Version 11.4.0: Mon Apr 
 
 
 
-weighttp -n 1000 -c [0-100 step:10] -t 8 -k "http://127.0.0.1:3000/mundlejs/KDApplications/Home.kdapplication/AppController"
+weighttp -n 1000 -c [0-100 step:10] -t 8 -k "http://127.0.0.1:3000/mundlejs/KDApplications/Home.kdapplication/AppController.js"
 
   Client           Requests per second               CPU
 -----------  -------------------------------  ----------------  -------
 Concurrency     min        ave        max      user     kernel   MB RAM
 -----------  ---------  ---------  ---------  -------  -------  -------
-         1,        99,       134,       185, 
-        10,       103,       145,       167, 
-        20,       111,       139,       162, 
-        30,       113,       135,       159, 
-        40,        88,       118,       138, 
-        50,        61,       110,       137, 
-        60,        52,        80,       105, 
-        70,        51,        60,        92, 
-        80,        52,        58,       105, 
-        90,        52,        76,       139, 
-       100,        52,        79,       107, 
+* Non-2xx responses:112
 -------------------------------------------------------------------------------
-min:834   avg:1134   max:1496 Time:1230 second(s) [00:20:30]
+min:0   avg:0   max:0 Time:8 second(s) [00:00:08]
 -------------------------------------------------------------------------------
  
