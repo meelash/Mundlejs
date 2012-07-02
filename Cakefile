@@ -16,7 +16,8 @@ task 'test', 'Run the automated tests', ()->
     exec 'cp ./tests/index.html ./tmp/mundleTest'
   
     exec 'coffee -o ./tmp/mundleTest/node_modules/mundle/lib -c ./src/*.coffee
-    && coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee', ()->
+    && coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee
+    && coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee', ()->
       reporter.run ['./tmp/mundleTest/main.js'], null, ->
         exec 'rm -Rf ./tmp'
   catch error

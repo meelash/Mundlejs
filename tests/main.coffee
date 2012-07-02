@@ -5,6 +5,8 @@ https = require 'https'
 fs = require 'fs'
 path = require 'path'
 {exec} = require 'child_process'
+{loadFile} = require 'mocks'
+exposedServerRequire = loadFile "#{__dirname}/node_modules/mundle/lib//exposed/server.js"
 
 # 
 # 
@@ -86,9 +88,7 @@ exports.testSetBasePath =
       test.deepEqual results, {'/testFile.js' : 'Hello, mundlejs!!'}, errors
       test.done()
 
-# Unify the error reporting and formatting across all kinds of errors.
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
-
 exports.testErrorFormatting =
   setUp : (callback)->
     serverRequire.setBasePath __dirname
@@ -132,11 +132,52 @@ exports.testErrorFormatting =
   
   nestedAccessAboveRoot : (test)->
     test.expect 2
-    createTestFile "#{__dirname}/test2.js", "require('../something/Hidden.js')"
-    serverRequire 'test2', {}, (errors,results)->
-      test.equal errors['../something/Hidden.js'].message, 'Attempt to access file above client-root'
-      test.equal errors['../something/Hidden.js'].path, '../something/Hidden.js'
+    createTestFile "#{__dirname}/testNestedAccessAboveRoot.js", "require('../something/Hidden1.js')"
+    serverRequire 'testNestedAccessAboveRoot', {}, (errors,results)->
+      test.equal errors['../something/Hidden1.js'].message, 'Attempt to access file above client-root'
+      test.equal errors['../something/Hidden1.js'].path, '../something/Hidden1.js'
       test.done()
+
+exports.testCache =
+  setUp : (callback)->
+    exposedServerRequire.module.exports.setBasePath __dirname
+    callback()
+    
+  dependencies:(test)->
+    test.expect 4
+    createTestFile "#{__dirname}/testCache1.js", "require('./testCache2.js')"
+    createTestFile "#{__dirname}/testCache2.js", "require('./testCache3.js')"
+    createTestFile "#{__dirname}/testCache3.js", ""
+    exposedServerRequire.module.exports "testCache1", {}, (errors, results)->
+      test.deepEqual exposedServerRequire.indexCache?["/testCache1.js"], [
+        value : './testCache2.js'
+        raw : '\'./testCache2.js\''
+        point : 9
+        line : 1,
+        column : 9
+      ], "dependencies should have been added to the cache"
+      test.deepEqual exposedServerRequire.indexCache?["/testCache2.js"], [
+        value : './testCache3.js'
+        raw : '\'./testCache3.js\''
+        point : 9
+        line : 1,
+        column : 9
+      ], "dependencies should have been added to the cache"
+      createTestFile "#{__dirname}/testCache2.js", "require('./testCache4.js')"
+      exposedServerRequire.module.exports 'testCache1', {}, (errors, results)->
+        test.deepEqual results, 
+          '/testCache1.js' : "require('./testCache2.js')"
+          '/testCache2.js' : "require('./testCache4.js')"
+          '/testCache3.js' : ""
+        , 'dependencies should have been loaded based on the cache, not the modified file'
+        exposedServerRequire.module.exports 'testCache1', {'/testCache3.js' : yes}, (errors, results)->
+          test.deepEqual results, 
+            '/testCache1.js' : "require('./testCache2.js')"
+            '/testCache2.js' : "require('./testCache4.js')"
+          , 'The bundles already on the client should be taken into account when building a bundle from the cached dependencies'
+          test.done()
+    
+  
 
 # exports.restrictAccessToRootAndBelow = (test)->
 #   serverRequire '../something.js'
