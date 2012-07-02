@@ -2,7 +2,7 @@
 
 Module bundler, cacher, and client-side loader  
 Demonstration:
-http://screencast.com/t/nOU53BRYUAX
+http://screencast.com/t/nOU53BRYUAX  
 Discussion:
 https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
 
@@ -42,6 +42,7 @@ npm install mundle
 
 ## Blog posts
 * http://meelash.blogspot.com/2012/06/preparing-to-optimize-mundlejs.html - first benchmarks
+* http://meelash.blogspot.com/2012/07/optimizing-mundlejs-cacheing-dependency.html
 
 
 Copyright (C) 2012 Saleem Abdul Hamid   
