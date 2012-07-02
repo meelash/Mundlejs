@@ -25,6 +25,7 @@ url = require 'url'
 findRequires = require 'find-requires'
 
 cachedPkgs = {}
+indexCache = {}
 basePath = '/'
 
 # An instance of class Mundle is created for each client-side request
@@ -72,7 +73,7 @@ class Mundle
 
   # parses a file for dependencies
   findAndLoadSyncRequires:(filePath, contents, callback)->
-    dependencies = findRequires contents, raw : yes
+    dependencies = indexCache[sanitizePath filePath] or= findRequires contents, raw : yes
     for dependency in dependencies
       if (syncRequire = dependency.value)?
         @readAndParseFile syncRequire, (path.dirname filePath), callback
