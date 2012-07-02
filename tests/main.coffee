@@ -163,20 +163,32 @@ exports.testCache =
         line : 1,
         column : 9
       ], "dependencies should have been added to the cache"
-      createTestFile "#{__dirname}/testCache2.js", "require('./testCache4.js')"
+      exposedServerRequire.fileCache["/testCache2.js"] = "require('./testCache4.js')"
       exposedServerRequire.module.exports 'testCache1', {}, (errors, results)->
-        test.deepEqual results, 
-          '/testCache1.js' : "require('./testCache2.js')"
-          '/testCache2.js' : "require('./testCache4.js')"
-          '/testCache3.js' : ""
-        , 'dependencies should have been loaded based on the cache, not the modified file'
+        test.ok results['/testCache3.js']?, 'dependencies should have been loaded based on the cache, not the modified file'
         exposedServerRequire.module.exports 'testCache1', {'/testCache3.js' : yes}, (errors, results)->
           test.deepEqual results, 
             '/testCache1.js' : "require('./testCache2.js')"
             '/testCache2.js' : "require('./testCache4.js')"
           , 'The bundles already on the client should be taken into account when building a bundle from the cached dependencies'
           test.done()
-    
+
+  files:(test)->
+    test.expect 3
+    createTestFile "#{__dirname}/testCacheFiles1.js", "require('./testCacheFiles2.js')"
+    createTestFile "#{__dirname}/testCacheFiles2.js", "require('./testCacheFiles3.js')"
+    createTestFile "#{__dirname}/testCacheFiles3.js", ""
+    exposedServerRequire.module.exports "testCacheFiles1", {}, (errors, results)->
+      test.deepEqual exposedServerRequire.fileCache?["/testCacheFiles1.js"], "require('./testCacheFiles2.js')", "contents of testCacheFiles1 should have been added to the cache"
+      test.deepEqual exposedServerRequire.fileCache?["/testCacheFiles2.js"], "require('./testCacheFiles3.js')", "contents of testCacheFiles2 should have been added to the cache"
+      createTestFile "#{__dirname}/testCacheFiles2.js", "require('./testCacheFiles3.js'); 'asdasdfasdf'"
+      exposedServerRequire.module.exports 'testCacheFiles1', {}, (errors, results)->
+        test.deepEqual results, 
+          '/testCacheFiles1.js' : "require('./testCacheFiles2.js')"
+          '/testCacheFiles2.js' : "require('./testCacheFiles3.js')"
+          '/testCacheFiles3.js' : ""
+        , 'file should have been loaded from the cache, not the modified file'
+        test.done()
   
 
 # exports.restrictAccessToRootAndBelow = (test)->

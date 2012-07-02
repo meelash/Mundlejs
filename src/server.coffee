@@ -26,6 +26,7 @@ findRequires = require 'find-requires'
 
 cachedPkgs = {}
 indexCache = {}
+fileCache = {}
 basePath = '/'
 
 # An instance of class Mundle is created for each client-side request
@@ -59,7 +60,7 @@ class Mundle
     return if @loaded[sanitizePath path]
     @queue++
     try
-      contents = fs.readFileSync (path), 'utf8'
+      contents = fileCache[sanitizePath path] or= fs.readFileSync (path), 'utf8'
       @loaded[sanitizePath path] = yes
       @findAndLoadSyncRequires path, contents, callback
       @queue--
@@ -112,7 +113,6 @@ sanitizePath = (path)->
     sanitizedPath = "/#{p2}"
   sanitizedPath
 
-cachePath = (path)->
 
 # API
 #
