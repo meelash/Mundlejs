@@ -1,8 +1,8 @@
 {
   "name": "mundle",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "A client-side module loader with server-side bundler and cacher",
-  "keywords": ["module loader", "require", "bundler", "exports", "modules"],
+  "keywords": ["module loader", "require", "bundler", "exports", "modules","javascript file server"],
   "author": "Saleem Abdul Hamid <meelash@gmail.com>",
   "licenses": [{"type": "GPL-3.0", "url": "http://www.opensource.org/licenses/GPL-3.0"}],
   "repositories": [
