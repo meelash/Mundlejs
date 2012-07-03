@@ -187,13 +187,13 @@ serverRequire.listen = (server, options, callback)->
       filePath = '/' + parsedUrl.pathname[1...]
       clientCacheDiff = parsedUrl.query
       if (cache = getPackageCache filePath, clientCacheDiff) instanceof Buffer
-        res.writeHead 200, 'Content-Type' : 'text/javascript'
-        res.end cache.toString()
+        res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
+        res.end cache
       else
         cacheIndex = cache
         serverRequire filePath, clientCacheDiff, (err, results)->
           cache = addPackageCache cacheIndex, {err, results}
-          res.writeHead 200, 'Content-Type' : 'text/javascript'
+          res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
           res.end cache
   return server
   
