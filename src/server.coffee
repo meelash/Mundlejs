@@ -121,6 +121,28 @@ getPackageCache = (filePath, clientCacheDiff)->
 addPackageCache = (index, data)->
   pkgCache[index] = cache = new Buffer (JSON.stringify data)
   return cache
+  
+requestHandler = (req, res, next)->
+  if req.url is '/mundlejs/require.js' 
+    clientJs = fs.readFileSync "#{__dirname}/client.js"
+    res.writeHead 200, 'Content-Type' : 'text/javascript'
+    res.end clientJs
+  else if (req.url.search /^\/mundlejs\//) isnt -1
+    parsedUrl = url.parse req.url[9...], yes
+    # if req.headers.clientid?
+    filePath = '/' + parsedUrl.pathname[1...]
+    clientCacheDiff = parsedUrl.query
+    if (cache = getPackageCache filePath, clientCacheDiff) instanceof Buffer
+      res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
+      res.end cache
+    else
+      cacheIndex = cache
+      serverRequire filePath, clientCacheDiff, (err, results)->
+        cache = addPackageCache cacheIndex, {err, results}
+        res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
+        res.end cache
+  else
+    next?()
 
 # API
 #
@@ -169,6 +191,7 @@ serverRequire.listen = (server, options, callback)->
     else
       server = require('http').createServer()
     
+    # This server is just being used for mundle, so all non-mundle requests display this friendly message
     server.on 'request', (req, res)->
       if (req.url.search /^\/mundlejs\//) is -1
         res.writeHead 200
@@ -176,25 +199,16 @@ serverRequire.listen = (server, options, callback)->
 
     server.listen port, callback
 
-  server.on 'request', (req, res)->
-    if req.url is '/mundlejs/require.js' 
-      clientJs = fs.readFileSync "#{__dirname}/client.js"
-      res.writeHead 200, 'Content-Type' : 'text/javascript'
-      res.end clientJs
-    else if (req.url.search /^\/mundlejs\//) isnt -1
-      parsedUrl = url.parse req.url[9...], yes
-      # if req.headers.clientid?
-      filePath = '/' + parsedUrl.pathname[1...]
-      clientCacheDiff = parsedUrl.query
-      if (cache = getPackageCache filePath, clientCacheDiff) instanceof Buffer
-        res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
-        res.end cache
-      else
-        cacheIndex = cache
-        serverRequire filePath, clientCacheDiff, (err, results)->
-          cache = addPackageCache cacheIndex, {err, results}
-          res.writeHead 200, 'Content-Type' : 'text/javascript', 'Content-Length' : cache.length
-          res.end cache
+  server.on 'request', requestHandler
   return server
+
+# Connect middleware
+# serverRequire.connect(basePath)
+# basePath <string> the base path relative to which all client-passed paths will be resolved
+# see serverRequire.setBasePath for more information
+serverRequire.connect = (basePath)->
+  if basePath?
+    serverRequire.setBasePath basePath
+  requestHandler
   
 module.exports = serverRequire

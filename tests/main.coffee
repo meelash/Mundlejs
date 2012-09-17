@@ -7,6 +7,8 @@ path = require 'path'
 {exec} = require 'child_process'
 {loadFile} = require 'mocks'
 exposedServerRequire = loadFile "#{__dirname}/node_modules/mundle/lib//exposed/server.js"
+connect = require 'connect'
+request = require 'superagent'
 
 # 
 # 
@@ -28,6 +30,10 @@ serverTypes =
   #   server = https.createServer key : 1111
   #   server.listen 3003, callback
   #   serverRequire.listen server
+  connectServer : (callback)->
+    app = connect()
+    (app.use serverRequire.connect())
+      .listen 3004, callback
 
 createTestFile = (filePath, text)->
   makePath = (dirPath)->
@@ -64,6 +70,25 @@ exports.testListen =
                   ph.exit()
       console.warn "Test fails because phantomjs doesn't have function.prototype.bind"
       console.warn "http://code.google.com/p/phantomjs/issues/detail?id=522"
+
+exports.testConnect = (test)->
+  test.expect 3
+  app = connect()
+    .use(serverRequire.connect())
+    .use (req, res)->
+      test.ok 'One test gets through past the mundle middleware'
+      res.writeHead 200, 'Content-Type' : 'text/javascript'
+      res.end 'Mundle didn\'t touch it'
+  .listen 3005, ->
+    relTestPath = path.relative process.cwd(), "#{__dirname}/foo/bar/testConnectFile.js"
+    createTestFile relTestPath, 'Hello, testConnect!!'
+    request.get 'http://0.0.0.0:3005/mundlejs/tmp/mundleTest/foo/bar/testConnectFile.js', (res)->
+      {results} = (JSON.parse res.text)
+      test.deepEqual results, {'/tmp/mundleTest/foo/bar/testConnectFile.js' : 'Hello, testConnect!!'}, 'Connect respond with the mundle'
+    
+      request.get 'http://0.0.0.0:3005/tmp/mundleTest/foo/bar/testConnectFile.js', (res)->
+        test.deepEqual res.text, 'Mundle didn\'t touch it', 'Connect bypass mundle middleware'
+        test.done()
 
 exports.testSetBasePath =
   relativePath : (test)->
@@ -189,18 +214,7 @@ exports.testCache =
           '/testCacheFiles3.js' : ""
         , 'file should have been loaded from the cache, not the modified file'
         test.done()
-  
 
-# exports.restrictAccessToRootAndBelow = (test)->
-#   serverRequire '../something.js'
-#   serverRequire '../hiddenDirectory/something.js'
-#   serverRequire '/../something' # FIXME!!! this one fails!
-#   etc...
-
-# 
-# 
-# exports.testServerRequire =
-#   
 
 
 # 
