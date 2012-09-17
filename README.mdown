@@ -62,6 +62,7 @@ npm install mundle
 ## Blog posts
 * http://meelash.blogspot.com/2012/06/preparing-to-optimize-mundlejs.html - first benchmarks
 * http://meelash.blogspot.com/2012/07/optimizing-mundlejs-cacheing-dependency.html
+* http://meelash.blogspot.com/2012/07/big-improvements.html
 
 
 Copyright (C) 2012 Saleem Abdul Hamid   
