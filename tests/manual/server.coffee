@@ -1,7 +1,12 @@
 http = require 'http'
 fs = require 'fs'
+mundleCoffee = require 'mundle-coffee-script'
+mundleJade = require 'mundle-jade'
+
 serverRequire = require '../../lib/server'
 serverRequire.setBasePath './'
+serverRequire.use mundleCoffee
+serverRequire.use mundleJade
 
 # Server
 index = fs.readFileSync './index.html'

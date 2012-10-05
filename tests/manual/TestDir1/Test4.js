@@ -14,7 +14,7 @@
     }
 
     Test4.prototype.loadAsyncModule = function() {
-      return require('./Test6.js', function(err, Test6) {
+      return require('./Test6.coffee', function(err, Test6) {
         if (err) return console.warn(err);
       });
     };

@@ -2,7 +2,8 @@
 
 Module bundler, cacher, and client-side loader  
 Demonstration:
-http://screencast.com/t/nOU53BRYUAX  
+* Basics http://screencast.com/t/nOU53BRYUAX  
+* Plugins http://screencast.com/t/r1qtLvX44I  
 Discussion:
 https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
 
