@@ -28,6 +28,7 @@ pkgCache = {}
 indexCache = {}
 fileCache = {}
 basePath = '/'
+loadedPlugins = {}
 
 # An instance of class Mundle is created for each client-side request
 class Mundle
@@ -61,6 +62,7 @@ class Mundle
     @queue++
     try
       contents = fileCache[sanitizePath path] or= fs.readFileSync (path), 'utf8'
+      contents = processWithPlugins path, contents
       @loaded[sanitizePath path] = yes
       @findAndLoadSyncRequires path, contents, callback
       @queue--
@@ -112,6 +114,12 @@ sanitizePath = (path)->
   path.replace re, (str, p1, p2)->
     sanitizedPath = "/#{p2}"
   sanitizedPath
+
+processWithPlugins = (filePath, contents)->
+  extension = (path.extname filePath)[1..]
+  if (compiler = loadedPlugins[extension])?
+    contents = compiler contents
+  contents
 
 getPackageCache = (filePath, clientCacheDiff)->
   filePath = resolvePath filePath, basePath
@@ -210,5 +218,14 @@ serverRequire.connect = (basePath)->
   if basePath?
     serverRequire.setBasePath basePath
   requestHandler
+
+# Add a plugin for pre-compiling files
+# plugin <Object {extensions, compiler}> plugin defining the file extensions it should be applied to and the compiler it should run the text through.
+serverRequire.use = (plugins)->
+  plugins = [plugins] unless plugins instanceof Array
+  for plugin in plugins
+    {extensions, compiler} = plugin
+    for extension in extensions
+      loadedPlugins[extension] = compiler
   
 module.exports = serverRequire

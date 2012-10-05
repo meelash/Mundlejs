@@ -215,6 +215,58 @@ exports.testCache =
         , 'file should have been loaded from the cache, not the modified file'
         test.done()
 
+testPlugin =
+  extensions: ['testPlugin0', 'testPlugin01']
+  compiler: (text)->
+    'The testPlugin compiler worked!'
+
+testPlugin1 =
+  extensions: ['testPlugin1', 'testPlugin11']
+  compiler: (text)->
+    'The testPlugin1 compiler worked!'
+
+testPlugin2 =
+  extensions: ['testPlugin2', 'testPlugin21']
+  compiler: (text)->
+    'The testPlugin2 compiler worked!'
+
+exports.testPlugin =
+  singlePlugin:(test)->
+    test.expect 4
+    createTestFile "#{__dirname}/testPlugin.testPlugin0", "blabkabjakjblaklajbljabl"
+    createTestFile "#{__dirname}/testPlugin.testPlugin01", "blabkabjakjblaklajbljabl"
+    serverRequire.use testPlugin
+    serverRequire '/testPlugin.testPlugin0', {}, (errors, modules)->
+      test.ifError errors, 'No errors should be returned'
+      test.deepEqual modules, {'/testPlugin.testPlugin0':'The testPlugin compiler worked!'}, 'Compiler should have returned compiled code from plugin 0'
+      serverRequire '/testPlugin.testPlugin01', {}, (errors, modules)->
+        test.ifError errors, 'No errors should be returned'
+        test.deepEqual modules, {'/testPlugin.testPlugin01':'The testPlugin compiler worked!'}, 'Compiler should have returned compiled code from plugin 1'
+        test.done()
+  multiplePlugin:(test)->
+    test.expect 8
+    createTestFile "#{__dirname}/testPlugin.testPlugin1", "blabkabjakjblaklajbljabl"
+    createTestFile "#{__dirname}/testPlugin.testPlugin11", "blabkabjakjblaklajbljabl"
+    serverRequire.use [testPlugin1, testPlugin2]
+    serverRequire '/testPlugin.testPlugin1', {}, (errors, modules)->
+      test.ifError errors, 'No errors should be returned'
+      test.deepEqual modules, {'/testPlugin.testPlugin1':'The testPlugin1 compiler worked!'}, 'Compiler should have returned compiled code from plugin 0 using first compiler'
+      serverRequire '/testPlugin.testPlugin11', {}, (errors, modules)->
+        test.ifError errors, 'No errors should be returned'
+        test.deepEqual modules, {'/testPlugin.testPlugin11':'The testPlugin1 compiler worked!'}, 'Compiler should have returned compiled code from plugin 1 using first compiler'
+
+
+        createTestFile "#{__dirname}/testPlugin.testPlugin2", "blabkabjakjblaklajbljabl"
+        createTestFile "#{__dirname}/testPlugin.testPlugin21", "blabkabjakjblaklajbljabl"
+        serverRequire '/testPlugin.testPlugin2', {}, (errors, modules)->
+          test.ifError errors, 'No errors should be returned'
+          test.deepEqual modules, {'/testPlugin.testPlugin2':'The testPlugin2 compiler worked!'}, 'Compiler should have returned compiled code from plugin 0 using second compiler'
+          serverRequire '/testPlugin.testPlugin21', {}, (errors, modules)->
+            test.ifError errors, 'No errors should be returned'
+            test.deepEqual modules, {'/testPlugin.testPlugin21':'The testPlugin2 compiler worked!'}, 'Compiler should have returned compiled code from plugin 1 using second compiler'
+            test.done()
+    
+
 
 
 # 

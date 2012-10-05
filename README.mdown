@@ -34,6 +34,22 @@ npm install mundle
   * 'moduleName' resolves to server-side basePath/moduleName.js
   * './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
 
+### Plugins
+    plugin = require(plugin);
+    mundle.use(plugin);
+    
+or
+
+    plugin1 = require(plugin1);
+    plugin2 = require(plugin2);
+    mundle.use([plugin1, plugin2]);
+
+* plugins allow you to pre-compile files before mundle attempts to parse them
+  * e.g. Jade template files, for including pre-compiled client-side, or coffee
+* plugins look like:
+    {extensions: [an array of file extensions, e.g. 'coffee', 'jade']}
+* check my other repos for jade and coffeescript plugins very shortly
+
 ## Tests
 * To run automated tests
     cake test

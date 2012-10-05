@@ -1,15 +1,27 @@
 {
   "name": "mundle",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "A client-side module loader with server-side bundler and cacher",
-  "keywords": ["module loader", "require", "bundler", "exports", "modules","javascript file server"],
+  "keywords": [
+    "module loader",
+    "require",
+    "bundler",
+    "exports",
+    "modules",
+    "javascript file server"
+  ],
   "author": "Saleem Abdul Hamid <meelash@gmail.com>",
-  "licenses": [{"type": "GPL-3.0", "url": "http://www.opensource.org/licenses/GPL-3.0"}],
+  "licenses": [
+    {
+      "type": "GPL-3.0",
+      "url": "http://www.opensource.org/licenses/GPL-3.0"
+    }
+  ],
   "repositories": [
-         {
-              "type": "git", 
-              "url": "http://github.com/meelash/Mundlejs"
-         }
+    {
+      "type": "git",
+      "url": "http://github.com/meelash/Mundlejs"
+    }
   ],
   "main": "lib/server",
   "directories.lib": "lib",
@@ -19,5 +31,9 @@
   "bugs": {
     "mail": "meelash@gmail.com",
     "url": "https://github.com/meelash/Mundlejs/issues"
+  },
+  "devDependencies": {
+    "mundle-coffee-script": "0.0.0",
+    "mundle-jade": "0.0.0"
   }
 }
