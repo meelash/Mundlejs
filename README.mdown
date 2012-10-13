@@ -67,6 +67,7 @@ or
 * Pull requests
 * Can this be generalized, for example automatic optimization of spriting from css files?
 * Plugins for processing files? e.g. compile jade templates
+* Check out the issues for ideas on what you can implement
 
 ## Coming soon
 * https (might already be working ;) untested)
@@ -75,6 +76,7 @@ or
   * client-side
   * cdn
     * have some ideas about cacheing to cdn's for really great performance
+* check out the issues for more
 
 ## Blog posts
 * http://meelash.blogspot.com/2012/06/preparing-to-optimize-mundlejs.html - first benchmarks
