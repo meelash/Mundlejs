@@ -79,9 +79,9 @@ or
 * check out the issues for more
 
 ## Blog posts
-* http://saleemabdulhamid.com/2012/06/preparing-to-optimize-mundlejs - first benchmarks
-* http://saleemabdulhamid.com/2012/07/optimizing-mundlejs-cacheing-dependency
-* http://saleemabdulhamid.com/2012/07/big-improvements
+* http://saleemabdulhamid.com/blog/2012/06/preparing-to-optimize-mundlejs - first benchmarks
+* http://saleemabdulhamid.com/blog/2012/07/optimizing-mundlejs-cacheing-dependency
+* http://saleemabdulhamid.com/blog/2012/07/big-improvements
 
 
 Copyright (C) 2012 Saleem Abdul Hamid   
