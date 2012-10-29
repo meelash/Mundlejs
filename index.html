@@ -30,8 +30,8 @@
       <section>
         <h2>Why mundlejs?</h2>
 
-<p>Lots of javascript loading up-front (concatenated) = long wait-time for initial page load.
-Loading all javascript asynchronously, as needed= too many requests resulting in poor performance and poor user experience.
+<p>Lots of javascript loading up-front (concatenated) = long wait-time for initial page load.<br>
+Loading all javascript asynchronously, as needed= too many requests resulting in poor performance and poor user experience.<br>
 Manually optimizing concatenated scripts for deployment= a pain, and an insolvable probable for dynamic sites.</p>
 
 <p>Symptom of all these problems: client-side code which is not truly modular and reusable, the way our server-side code is.</p>
@@ -57,10 +57,8 @@ Manually optimizing concatenated scripts for deployment= a pain, and an insolvab
 <li>Very intuitive- when your code means what it says, everyone benefits</li>
 </ul><h3>Major byproduct benefit of this solution-</h3>
 
-<p>We can have real client-side module managements, à la npm for the client. Imagine this:
-    mundle install jQuery@1.7.6
-and in your client-side code:
-    $ = require('jQuery');
+<p>We can have real client-side module managements, à la npm for the client. Imagine this:<br><code>mundle install jQuery@1.7.6</code><br>
+and in your client-side code:<br><code>$ = require('jQuery');</code><br>
 And you're done!</p>
 
 <p>Very easy with this solution and going to be implemented next. (I'm itching to do this right away.... but it's 0010 Monday morning... hmm....)</p>
