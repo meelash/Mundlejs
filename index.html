@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Mundlejs by meelash</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Mundlejs</h1>
+        <p>Client-side module bundler, cacher, loader</p>
+
+        <p class="view"><a href="https://github.com/meelash/Mundlejs">View the Project on GitHub <small>meelash/Mundlejs</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/meelash/Mundlejs/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/meelash/Mundlejs/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/meelash/Mundlejs">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Why mundlejs?</h2>
+
+<p>Lots of javascript loading up-front (concatenated) = long wait-time for initial page load.
+Loading all javascript asynchronously, as needed= too many requests resulting in poor performance and poor user experience.
+Manually optimizing concatenated scripts for deployment= a pain, and an insolvable probable for dynamic sites.</p>
+
+<p>Symptom of all these problems: client-side code which is not truly modular and reusable, the way our server-side code is.</p>
+
+<h2>What does it look like?</h2>
+
+<ul>
+<li><p>For a step in the workflow where the user would expect a "loading" delay for the dependency:
+<code>require('./someModule.js',myCallbackFunc);</code></p></li>
+<li><p>For dependencies that you want to be available immediately:
+<code>someModuleExports = require('./someModule.js');</code></p></li>
+</ul><p>Your code does what it says- no processing before deployment to make it mean something different, and no fake synchronicity that gets covered up by a build step. Synchronous require in your client-side code means that module will be available immediately, asynchronous means you can arrange to keep the client busy while waiting for the module to load.</p>
+
+<h2>How does it work?</h2>
+
+<p>The secret is that loading client-side modules is not a client only problem, a server-side component should exist and work hand-in-hand with the client. What the server-side does is parse synchronous dependencies (the second form in the "what?" section) and package them all together so they will be available immediately.</p>
+
+<h2>Benefits:</h2>
+
+<ul>
+<li>Client-side code can be as modular as you like, without affecting real-life performance.</li>
+<li>Really fast- caching of bundles is included, so it's faster than express even at serving single files</li>
+<li>Very intuitive- when your code means what it says, everyone benefits</li>
+</ul><h3>Major byproduct benefit of this solution-</h3>
+
+<p>We can have real client-side module managements, à la npm for the client. Imagine this:
+    mundle install jQuery@1.7.6
+and in your client-side code:
+    $ = require('jQuery');
+And you're done!</p>
+
+<p>Very easy with this solution and going to be implemented next. (I'm itching to do this right away.... but it's 0010 Monday morning... hmm....)</p>
+
+<h2>Where to go next?</h2>
+
+<p>Check out <a href="https://github.com/meelash/Mundlejs">the product page</a> to learn more, see demos, see what's coming soon (in the issues) and what's missing, contribute, and feedback.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/meelash">meelash</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
