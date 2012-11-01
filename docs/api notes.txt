@@ -1,0 +1,14 @@
+Client-side conversions
+	mundle folder:
+		'foo' -> | 'foo' - if no module version of this name has been fetched previously
+		         | 'foo/ve.rs.ion' - if a particular version's been fetched before (cached will be used)
+
+		'foo@ve.rs.ion' -> 'foo/ve.rs.ion'
+
+		'foo[@ve.rs.ion]/bar.js' -> 'foo[/ve.rs.ion]/bar.js'
+
+
+	base path:
+		'./foo.js' -> 'pathOfParent/foo.js'
+
+		'/foo.js' -> '/foo.js'

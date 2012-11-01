@@ -1,0 +1,11 @@
+Decisions regarding "mundle install" changes
+
+
+module loads don't support path resolution, at all. Because it would break the client being able to resolve paths independently. If you have a module in your path and you address it with a path, it is unsupported and will treat it as a different script to that script loaded as a module. The other alternative would have been to somehow restrict the path relationship between the base path and the module directory which is very yucky. Client being able to resolve the same path described different ways without contacting the server is paramount.
+
+
+basically, requiring a path with './' or '../' resolve to '/' and is completely separate from loading one without (e.g. 'foo'). If they happen to coincide, so be it. From inside a 'foo,' obviously relative paths will resolve to it.
+
+
+
+module load without a version will return the version of whatever is returned and keep that on the client, so potentially different versions could be loaded although, I'm not sure of the practical point of that... maybe someone will use it.

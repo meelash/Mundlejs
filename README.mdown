@@ -1,9 +1,9 @@
 # Mundlejs
 
-Module bundler, cacher, and client-side loader  
+Module bundler, cacher, and client-side loader	
 Demonstration:
-* Basics http://screencast.com/t/nOU53BRYUAX  
-* Plugins http://screencast.com/t/r1qtLvX44I  
+* Basics http://screencast.com/t/nOU53BRYUAX	
+* Plugins http://screencast.com/t/r1qtLvX44I	
 Discussion:
 https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
 
@@ -12,52 +12,59 @@ npm install mundle
 
 ## Basic Usage
 ### Server-side
-    serverRequire = require('mundle');
-    serverRequire.setBasePath('pathToMakeIntoTheClient-sideRoot');
-    serverRequire.listen(3000);
-    
+		serverRequire = require('mundle');
+		serverRequire.setBasePath('pathToMakeIntoTheClient-sideRoot');
+		serverRequire.listen(3000);
+		
 ### Server-side using Connect(/Express)
-    connect = require('connect');
-    mundle = require('mundle');
-    app = connect()
-      .use(mundle.connect('pathToMakeIntoTheClient-sideRoot')
-      .listen(3000);
+		connect = require('connect');
+		mundle = require('mundle');
+		app = connect()
+			.use(mundle.connect('pathToMakeIntoTheClient-sideRoot')
+			.listen(3000);
 
 ### Client-side
-    <script type='text/javascript' src='mundlejs/require.js'></script>
-    <script type='text/javascript'>
-        require('somePath',function(error,exportsFromSomePath){
-            console.log('Yayyy!');
-        };
-    </script>
-    
+		<script type='text/javascript' src='mundlejs/require.js'></script>
+		<script type='text/javascript'>
+				require('somePath',function(error,exportsFromSomePath){
+						console.log('Yayyy!');
+				};
+		</script>
+		
 * somePath can be
-  * 'moduleName' resolves to server-side basePath/moduleName.js
-  * './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
+	* 'moduleName[@version]' resolves to server-side basePath/mundles/moduleName/(version|default)
+	* './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
+
+### Installing mundles
+		mundle install gitRepoAddress
+
+### Defining mundles
+		Do it like npm. Right now, we only use name and version fields.
+		Centralised repo and dependencies coming soon, feedback and contributions will speed them up
 
 ### Plugins
-    plugin = require(plugin);
-    mundle.use(plugin);
-    
+		plugin = require(plugin);
+		mundle.use(plugin);
+		
 or
 
-    plugin1 = require(plugin1);
-    plugin2 = require(plugin2);
-    mundle.use([plugin1, plugin2]);
+		plugin1 = require(plugin1);
+		plugin2 = require(plugin2);
+		mundle.use([plugin1, plugin2]);
 
 * plugins allow you to pre-compile files before mundle attempts to parse them
-  * e.g. Jade template files, for including pre-compiled client-side, or coffee
+	* e.g. Jade template files, for including pre-compiled client-side, or coffee
 * plugins look like:
-    {extensions: [an array of file extensions, e.g. 'coffee', 'jade']}
-* check my other repos for jade and coffeescript plugins very shortly
+		{extensions: [an array of file extensions, e.g. 'coffee', 'jade']}
+* check my other repos for jade and coffeescript plugins
 
 ## Tests
 * To run automated tests
-    cake test
-* To run manual tests  
-    cd tests/manual  
-    node server.js
-  * visit http://127.0.0.1:1337/ and observe console
+		cake test
+* To run manual tests	 
+		cd tests/manual	 
+		node server.js
+	* visit http://127.0.0.1:1337/ and observe console
 
 ## Contribute
 * Suggestions of how to make this more useful/robust/pluginable/available to more people very welcome
@@ -84,5 +91,5 @@ or
 * http://saleemabdulhamid.com/blog/2012/07/big-improvements
 
 
-Copyright (C) 2012 Saleem Abdul Hamid   
+Copyright (C) 2012 Saleem Abdul Hamid		
 Licensed under the GPL license

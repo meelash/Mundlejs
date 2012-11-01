@@ -19,6 +19,11 @@
 # http://www.opensource.org/licenses/mit-license.php
 #
 
+# base refers to js files that are referenced from the base dir path defined server-side- generally not packaged mundles
+# mundle refers to js files that are in packaged mundles installed in the mundles directory by `mundle install`
+basePrefix = '/b'
+mundlePrefix = '/m'
+
 # Each file that is loaded is evaluated in the context of a new Module instance
 # Each instance has the variables module, exports, and require in scope
 # module is a reference to the module instance for that file
@@ -33,62 +38,23 @@ class Module
 		exports = module.exports
 		require = module.require.bind module
 		eval source
-		module.exports
+		return module.exports
 	
 	# If module has not been fetched, fetch it and all its dependencies asynchronously and execute just it immediately, then callback its exports
 	# If module has been fetched but not executed, execute it, then return and callback its exports
 	# If module has already been executed, just return and callback its exports
 	require:(path, callback)->
-		path = @resolvePath path
-		if (exported = cache.modules[path])?
-			callback? null, exported
-			return exported
-		else if (source = cache.fetched[path])?
-			do ->
-				module = new Module path
-				exported = cache.modules[path] = module.runInContext source
-				callback? null, exported
-				return exported
+		if /^(\.|\.\.)?\//.test path
+			path = resolveBasePath path, parent @path
+			requireBase path, callback
 		else
-			serverRequire path, (errors, sources)->
-				# console.log path
-				# console.log Object.keys sources
-				if errors?
-					for err in errors when err?
-						console.warn err
-				for own subPath, source of sources
-					cache.fetched[subPath] = source
-					cache.cached[subPath] = yes
-				callback? null, require path
- 
-	# All paths get resolved to 'absolute' paths from the client-side 'root' which is the base path set on the server-side component 
-	# relative path, e.g. '../foo.js' in a file at '/foo/bar/bar.js' resolves to '/foo/foo.js'
-	# "absolute" path, e.g. '/foo.js' resolves to '/foo.js'
-	# module name, e.g. 'foo' resolves to '/foo.js'
-	resolvePath:(path)->
-		if /^(.|..)\//.test path
-			components = path.split '/'
-			path = parent @path
-			while components.length > 0
-				switch component = (components.splice 0, 1)[0]
-					when '..'
-						path = parent path
-					when '.'
-					else
-						path += "/#{component}"
-		else if /^\//.test path
-			path
-		else
-			path = "/#{path}.js"
-		path
+			path = resolveMundlePath path
+			requireMundle path, callback
 
-	parent = (path)->
-		ar = path.split '/'
-		ar.pop()
-		ar.join '/'
 
-baseModule = (new Module '')
-window.require = baseModule.require.bind baseModule
+baseModule = (new Module "#{basePrefix}/")
+# The var require here was added for testing in node.js to override node's require
+window.require = require = baseModule.require.bind baseModule
 
 requestHostname = window.location.hostname
 requestPort = window.location.port
@@ -105,13 +71,116 @@ serverRequire = (path, callback)->
 		callback response.err, response.results
 	request.send()
 
+##
+# Utils
+##
+
+requireBase = (path, callback)->
+	if (exported = cache.modules[path])?
+		callback? null, exported
+		return exported
+	else if (source = cache.fetched[path])?
+		do ->
+			module = new Module path
+			exported = cache.modules[path] = module.runInContext source
+			callback? null, exported
+			return exported
+	else
+		serverRequire path, (errors, sources)=>
+			# console.log path
+			# console.log Object.keys sources
+			if errors?
+				for err in errors when err?
+					console.warn err
+			for own subPath, source of sources
+				cache.fetched[subPath] = source
+			callback? null, requireBase path
+	
+requireMundle = (path, callback)->
+	if (exported = cache.modules[path])?
+		callback? null, exported
+		return exported
+	else if (source = cache.fetched[path])?
+		do ->
+			module = new Module path
+			exported = cache.modules[path] = module.runInContext source
+			callback? null, exported
+			return exported
+	else
+		serverRequire path, (errors, sources)=>
+			# console.log path
+			# console.log Object.keys sources
+			if errors?
+				for err in errors when err?
+					console.warn err
+			for own subPath, source of sources
+				cache.fetched[subPath] = source
+				cacheVersion subPath
+			path = updateMundleVersion path
+			callback? null, requireMundle path
+ 
+# All paths get resolved to 'absolute' paths from the client-side 'root' with either a '/m/' or '/b/' prefix.
+# /m is the path to installed mundles
+# /b is the base path set on the server-side component
+# relative path, e.g. '../foo.js' in a file at '/b/foo/bar/bar.js' resolves to '/b/foo/foo.js'
+# "absolute" path, e.g. '/foo.js' resolves to '/b/foo.js'
+# mundle name, e.g. 'foo' resolves to '/m/foo'
+resolveBasePath = (path, parentPath)->
+	# absolute paths
+	if /^\//.test path
+		return path = "#{basePrefix}#{path}"
+	# relative paths
+	else
+		components = path.split '/'
+		path = parentPath
+		while components.length > 0
+			switch component = (components.splice 0, 1)[0]
+				when '..'
+					path = parent path
+				when '.'
+				else
+					path += "/#{component}"
+		return path
+	
+resolveMundlePath = (path)->
+	match = /^(.*?)((@)(.*?))?(\/.*)?$/.exec path
+	version = match[4] or cache.versions[match[1]] or '0.0.0'
+	path = "#{mundlePrefix}/#{match[1]}/#{version}"
+	if (subDir = match[5])?
+		path += subDir
+	path
+	
+updateMundleVersion = (path)->
+	match = /^(\/m\/(.*?)\/)(.*?)(\/.*)?$/.exec path
+	if (version = match[3]) is '0.0.0'
+		version = cache.versions[match[2]] or '0.0.0'
+	path = match[1]+version
+	if (subDir = match[4])?
+		path += subDir
+	path
+
+parent = (path)->
+	ar = path.split '/'
+	console.error 'parent only accepts absolute paths' unless ar[0] is ''
+	if ar[1] is 'm'
+		if ar.length < 5 # []/[m]/[moduleName]/[version]/
+			return ar.join '/'
+	else if ar.length < 3 # []/[b]/
+		return ar.join '/'
+	ar.pop()
+	ar.join '/'
+
 cacheDiffString = ->
-	((Object.keys cache.cached).join '=1&') + '=1'
+	((Object.keys cache.fetched).join '=1&') + '=1'
+
+cacheVersion = (path)->
+	if (match = /\/m\/(.*?)\/(.*?)(\/.*)?$/.exec path)?
+		[match, mundle, version] = match
+		cache.versions[mundle] = version
 
 # modules - {file:reference to exports from already executed files}
 # fetched - {file:string of the text of an already fetched file}
-# cached - {file:boolean whether it has been fetched or not}
 cache =
 	modules : {}
 	fetched : {}
-	cached	: {}
+	versions : {}
