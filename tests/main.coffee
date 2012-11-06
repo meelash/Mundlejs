@@ -44,32 +44,32 @@ createTestFile = (filePath, text)->
 	makePath path.dirname filePath
 	fs.writeFileSync filePath, text
 
-# exports.testListen = 
-# 	clientServed : (test)->
-# 		serversTested = 0
-# 		test.expect (Object.keys serverTypes).length
-# 		
-# 		phantom.create (ph)->
-# 			for serverType, serverInit of serverTypes
-# 				do (serverType)->
-# 					server = serverInit ->
-# 						{address, port} = server.address()
-# 						ph.createPage (page)->
-# 							page.set 'onError', (msg, trace)->
-# 								console.log msg
-# 								trace.forEach (item)->
-# 									console.log "	 #{item.file}:#{item.line}"
-# 							page.includeJs "http://#{address}:#{port}/mundlejs/require.js", ->
-# 								# test.equal status, 'success', 'serving client code at #{address}:#{port} over #{serverType}'
-# 								page.evaluate ->
-# 									window.require?
-# 								, (exists)->
-# 									test.ok exists, 'require function is available'
-# 									test.done() if ++serversTested is (Object.keys serverTypes).length
-# 									server.close()
-# 									ph.exit()
-# 			console.warn "Test fails because phantomjs doesn't have function.prototype.bind"
-# 			console.warn "http://code.google.com/p/phantomjs/issues/detail?id=522"
+exports.testListen = 
+	clientServed : (test)->
+		serversTested = 0
+		test.expect (Object.keys serverTypes).length
+		
+		phantom.create (ph)->
+			for serverType, serverInit of serverTypes
+				do (serverType)->
+					server = serverInit ->
+						{address, port} = server.address()
+						ph.createPage (page)->
+							page.set 'onError', (msg, trace)->
+								console.log msg
+								trace.forEach (item)->
+									console.log "	 #{item.file}:#{item.line}"
+							page.includeJs "http://#{address}:#{port}/mundlejs/require.js", ->
+								# test.equal status, 'success', 'serving client code at #{address}:#{port} over #{serverType}'
+								page.evaluate ->
+									window.require?
+								, (exists)->
+									test.ok exists, 'require function is available'
+									test.done() if ++serversTested is (Object.keys serverTypes).length
+									server.close()
+									ph.exit()
+			console.warn "Test fails because phantomjs doesn't have function.prototype.bind"
+			console.warn "http://code.google.com/p/phantomjs/issues/detail?id=522"
 
 exports.testConnect = (test)->
 	test.expect 3
@@ -103,14 +103,14 @@ exports.testSetBasePath =
 			test.done()
 
 	absolutePath : (test)->
-		absTestPath = "#{__dirname}/foo1/bar1/testFile.js"
+		absTestPath = "#{__dirname}/foo1/bar1/testFile1.js"
 		createTestFile absTestPath, 'Hello, mundlejs!!'
 
 		test.expect 2
 		serverRequire.setBasePath path.dirname absTestPath
-		serverRequire '/b/testFile.js', {}, (errors, results)->
+		serverRequire '/b/testFile1.js', {}, (errors, results)->
 			test.ifError errors
-			test.deepEqual results, {'/b/testFile.js' : 'Hello, mundlejs!!'}, errors
+			test.deepEqual results, {'/b/testFile1.js' : 'Hello, mundlejs!!'}, errors
 			test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require

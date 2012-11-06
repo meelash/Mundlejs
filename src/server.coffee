@@ -60,20 +60,15 @@ class Mundle
 
 	# recursively read and parse file and dependencies
 	readAndParseFile:(file, callback)->
-		# try
-		#		# resolve client-side safe-path to server-side absolute path
-		#		path = resolvePath path
-		# catch err
-		#		return callback.call @, err, path, ''
-
 		return if @loaded[file.getClientPath()]
 		@queue++
 		try
-			contents = file.getContents()
-			@loaded[file.getClientPath()] = yes
-			@findAndLoadSyncRequires file, contents, callback
-			@queue--
-			callback.call @, null, file, contents
+			file.getContents (error, contents)=>
+				unless error?
+					@loaded[file.getClientPath()] = yes
+					@findAndLoadSyncRequires file, contents, callback
+				@queue--
+				callback.call @, error, file, contents
 		catch error
 			@queue--
 			callback.call @, error, file, ''
@@ -130,49 +125,63 @@ class MundleFile
 			return @clientPath = clientPath
 
 	# utility to resolve relative paths from the client and block access below the base path
-	getAbsPath:->
-		return @absPath if @absPath?
+	getAbsPath:(callback)->
+		return callback null, @absPath if @absPath?
+		
+		gotAbsPath = (absPath, callback)=>
+			try
+				checkPermission absPath
+				callback null, @absPath = absPath
+			catch error
+				callback error
 		
 		# base paths
 		clientPath = @getClientPath()
 		if /^\/b\//.test clientPath
-			absPath = path.join basePath, clientPath[3..]
+			gotAbsPath (path.join basePath, clientPath[3..]), callback
 		# mundle paths
 		else if /^\/m\//.test clientPath
 			match = /^\/m\/(.*?)\/(.*?)(\/.*)?$/.exec clientPath
 			[str, name, version, clientPath] = match
 			if clientPath?
-				absPath = path.join mundlesPath, name, version, clientPath
+				gotAbsPath (path.join mundlesPath, name, version, clientPath), callback
 			else
 				packagePath = path.join mundlesPath, name, version
-				pkg = readPackage packagePath
-				filename = path.resolve packagePath, pkg.main
-				absPath = tryFile filename or tryFile path.resolve filename, 'index.js'
-				unless absPath
-					throw new MundleError
+				readPackage packagePath, (error, pkg)->
+					filename = path.resolve packagePath, pkg.main
+					tryFile filename, (error, absPath)->
+						unless absPath
+							tryFile (path.resolve filename, 'index.js'), (error, absPath)->
+								unless absPath
+									callback new MundleError
+								else
+									gotAbsPath absPath, callback
+						else
+							gotAbsPath absPath, callback
 		else
-			throw new MundleError
+			error = new MundleError
 				message : 'Incorrectly formed request. Missing request type (/b or /m)'
-		checkPermission absPath
-		@absPath = absPath
+			callback error
 
-	getContents:->
-		return @contents if @contents?
-		return @contents if (@contents = fileCache[@getClientPath()])?
-		absPath = @getAbsPath()
-		try
-			contents = fs.readFileSync absPath, 'utf8'
-		catch error
-			{errno, code, syscall} = error
-			console.error error, 'at getContents'
-			throw new MundleError {
-				message : 'Unable to read file'
-				errno
-				code
-				syscall
-			}
-		contents = @contents = fileCache[@getClientPath()] =
-			processWithPlugins absPath, contents
+	getContents:(callback)->
+		return callback null, @contents if @contents?
+		return callback null, @contents if (@contents = fileCache[@getClientPath()])?
+		@getAbsPath (error, absPath)=>
+			if error?
+				callback error
+			else
+				fs.readFile absPath, 'utf8', (error, contents)=>
+					if error?
+						{errno, code, syscall} = error
+						console.error error, 'at getContents'
+						error = new MundleError {
+							message : 'Unable to read file'
+							errno
+							code
+							syscall
+						}
+					callback error, @contents = fileCache[@getClientPath()] =
+						processWithPlugins absPath, contents
 
 class MundleError extends Error
 	constructor:(options)->
@@ -181,35 +190,34 @@ class MundleError extends Error
 		super()
 
 # check if the directory is a package.json dir
-readPackage = (requestPath)->
+readPackage = (requestPath, callback)->
 	if (hasOwnProperty(packageCache, requestPath))
 		return packageCache[requestPath]
-	try
-		jsonPath = path.resolve(requestPath, 'package.json')
-		json = fs.readFileSync(jsonPath, 'utf8')
-	catch e
-		{errno, code, syscall} = e
-		console.error e
-		throw new MundleError {
-			message : 'Mundle is missing package.json'
-			errno
-			code
-			syscall
-		}
-	try
-		pkg = packageCache[requestPath] = JSON.parse(json)
-	catch e
-		e.path = jsonPath
-		e.message = 'Error parsing ' + jsonPath + ': ' + e.message
-		throw new MundleError e
-	pkg
+	jsonPath = path.resolve(requestPath, 'package.json')
+	fs.readFile jsonPath, 'utf8', (error, json)->
+		if error?
+			{errno, code, syscall} = error
+			console.error error, 'at readPackage'
+			return callback new MundleError {
+				message : 'Mundle is missing package.json'
+				errno
+				code
+				syscall
+			}
+		try
+			pkg = packageCache[requestPath] = JSON.parse(json)
+		catch e
+			e.path = jsonPath
+			e.message = 'Error parsing ' + jsonPath + ': ' + e.message
+			error = new MundleError e
+		callback error, pkg
 
 # check if the file exists and is not a directory
-tryFile = (requestPath)->
-	stats = fs.statSync(requestPath)
-	if (stats && !stats.isDirectory())
-		return fs.realpathSync(requestPath)
-	return false
+tryFile = (requestPath, callback)->
+	fs.stat requestPath, (error, stats)->
+		if (stats && !stats.isDirectory())
+			fs.realpath requestPath, callback
+		callback null, false
 
 checkPermission = (filePath)->
 	# check If Below mundlesPath
@@ -237,7 +245,7 @@ processWithPlugins = (filePath, contents)->
 	contents
 
 getPackageCache = (filePath, clientCacheDiff)->
-	filePath = filePath.getAbsPath()
+	filePath = filePath.getClientPath()
 	index = filePath + (Object.keys clientCacheDiff).sort()
 	return pkgCache[index] or index
 
@@ -247,9 +255,9 @@ addPackageCache = (index, data)->
 	
 requestHandler = (req, res, next)->
 	if req.url is '/mundlejs/require.js' 
-		clientJs = fs.readFileSync "#{__dirname}/client.js"
-		res.writeHead 200, 'Content-Type' : 'text/javascript'
-		res.end clientJs
+		fs.readFile "#{__dirname}/client.js", (error, clientJs)->
+			res.writeHead 200, 'Content-Type' : 'text/javascript'
+			res.end clientJs
 	else if (req.url.search /^\/mundlejs\//) > -1
 		parsedUrl = url.parse req.url[9...], yes
 		# if req.headers.clientid?
