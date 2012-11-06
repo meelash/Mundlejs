@@ -9,3 +9,6 @@ basically, requiring a path with './' or '../' resolve to '/' and is completely 
 
 
 module load without a version will return the version of whatever is returned and keep that on the client, so potentially different versions could be loaded although, I'm not sure of the practical point of that... maybe someone will use it.
+
+
+For requiring single files (from the base directory, i.e. not mundles) it is necessary to include file extensions. We can't do fancy stuff like in node where the .js, .json, etc can be left out. The reason is that we need to uniquely resolve all paths independently on the client side to prevent duplicate loads. That fancy stuff can only happen if we resolve the path server-side and then let the client know which would require a separate request just for that. So it's better to just require exact file names. If you don't like file extensions, don't use them in your filesystem :P :P. That's why cool people liked macs in the 90's remember?
