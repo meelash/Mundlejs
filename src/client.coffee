@@ -97,7 +97,7 @@ requestPort = window.location.port
 # looks like: http://<location.hostname>:<location.port>/mundlejs</file requested>?alreadyLoadedModule=1&anotherAlreadyLoaded=1&.....
 serverRequire = (path, callback)->
   request = new XMLHttpRequest()
-  request.open('GET', "http://#{requestHostname}:#{requestPort}/mundlejs#{path}?#{cacheDiffString()}", true)
+  request.open('GET', "//#{requestHostname}:#{requestPort}/mundlejs#{path}?#{cacheDiffString()}", true)
   # request.setRequestHeader 'clientid', 'lakjsdflkjasld'
   request.responseType = 'text'
   request.onload = ->
