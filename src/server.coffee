@@ -143,21 +143,27 @@ class MundleFile
 		else if /^\/m\//.test clientPath
 			match = /^\/m\/(.*?)\/(.*?)(\/.*)?$/.exec clientPath
 			[str, name, version, clientPath] = match
+			version = version.replace '0.0.0', 'latest'
 			if clientPath?
-				gotAbsPath (path.join mundlesPath, name, version, clientPath), callback
+				# gotAbsPath (path.join mundlesPath, name, version, clientPath), callback
+				gotAbsPath (path.join mundlesPath, name, clientPath), callback
 			else
-				packagePath = path.join mundlesPath, name, version
+				# packagePath = path.join mundlesPath, name, version
+				packagePath = path.join mundlesPath, name
 				readPackage packagePath, (error, pkg)->
-					filename = path.resolve packagePath, pkg.main
-					tryFile filename, (error, absPath)->
-						unless absPath
-							tryFile (path.resolve filename, 'index.js'), (error, absPath)->
-								unless absPath
-									callback new MundleError
-								else
-									gotAbsPath absPath, callback
-						else
-							gotAbsPath absPath, callback
+					if error
+						callback error
+					else
+						filename = path.resolve packagePath, pkg.main
+						tryFile filename, (error, absPath)->
+							unless absPath
+								tryFile (path.resolve filename, 'index.js'), (error, absPath)->
+									unless absPath
+										callback new MundleError message : 'need an error message and test!!!'
+									else
+										gotAbsPath absPath, callback
+							else
+								gotAbsPath absPath, callback
 		else
 			error = new MundleError
 				message : 'Incorrectly formed request. Missing request type (/b or /m)'
@@ -192,7 +198,7 @@ class MundleError extends Error
 # check if the directory is a package.json dir
 readPackage = (requestPath, callback)->
 	if (hasOwnProperty(packageCache, requestPath))
-		return packageCache[requestPath]
+		return callback undefined, packageCache[requestPath]
 	jsonPath = path.resolve(requestPath, 'package.json')
 	fs.readFile jsonPath, 'utf8', (error, json)->
 		if error?
@@ -216,8 +222,8 @@ readPackage = (requestPath, callback)->
 tryFile = (requestPath, callback)->
 	fs.stat requestPath, (error, stats)->
 		if (stats && !stats.isDirectory())
-			fs.realpath requestPath, callback
-		callback null, false
+			return fs.realpath requestPath, callback
+		callback error, false
 
 checkPermission = (filePath)->
 	# check If Below mundlesPath

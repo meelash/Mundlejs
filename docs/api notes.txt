@@ -12,3 +12,26 @@ Client-side conversions require-to-request
 		'./foo.js' -> '/b/pathOfParent/foo.js'
 
 		'/foo.js' -> '/b/foo.js'
+
+
+
+
+
+
+Server-side
+
+	Input
+		from deps (we convert these all to form 2, since we need to anyway (because the paths we pass back have to have client-side resolution built in)...)
+			'foo'
+			'foo@ve.rs.ion'
+			'foo/bar.js'
+			'foo@ve.rs.ion/bar.js'
+			./foo.js
+			'/foo.js'
+		from client
+			'/m/foo/0.0.0'
+			'/m/foo/ve.rs.ion'
+			'/m/foo/0.0.0/bar.js'
+			'/m/foo/ve.rs.ion/bar.js'
+			'/b/pathOfParent/foo.js'
+			'/b/foo.js'

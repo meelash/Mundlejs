@@ -82,11 +82,11 @@ exports.testConnect = (test)->
 	.listen 3005, ->
 		relTestPath = path.relative process.cwd(), "#{__dirname}/foo/bar/testConnectFile.js"
 		createTestFile relTestPath, 'Hello, testConnect!!'
-		request.get 'http://0.0.0.0:3005/mundlejs/b/tmp/mundleTest/foo/bar/testConnectFile.js', (res)->
+		request.get 'http://0.0.0.0:3005/mundlejs/b/foo/bar/testConnectFile.js', (res)->
 			{results} = (JSON.parse res.text)
-			test.deepEqual results, {'/b/tmp/mundleTest/foo/bar/testConnectFile.js' : 'Hello, testConnect!!'}, 'Connect respond with the mundle'
+			test.deepEqual results, {'/b/foo/bar/testConnectFile.js' : 'Hello, testConnect!!'}, 'Connect respond with the mundle'
 
-			request.get 'http://0.0.0.0:3005/tmp/mundleTest/foo/bar/testConnectFile.js', (res)->
+			request.get 'http://0.0.0.0:3005/foo/bar/testConnectFile.js', (res)->
 				test.deepEqual res.text, 'Mundle didn\'t touch it', 'Connect bypass mundle middleware'
 				test.done()
 
@@ -111,6 +111,42 @@ exports.testSetBasePath =
 		serverRequire '/b/testFile1.js', {}, (errors, results)->
 			test.ifError errors
 			test.deepEqual results, {'/b/testFile1.js' : 'Hello, mundlejs!!'}, errors
+			test.done()
+
+### 
+	Currently we're not supporting versioning. But some of the client-side work for it was done already, so the tests exercise those cases.
+###
+exports.testMundle =
+	standardPackage : (test)->
+		test.expect 2
+		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore.js", 'utf8'
+		serverRequire '/m/underscore/1.4.2', {}, (errors, results)->
+			test.ifError errors
+			test.equal results['/m/underscore/1.4.2'], contents, 'Should get file contents of main js file'
+			test.done()
+	
+	standardPackageDefaultVersion : (test)->
+		test.expect 2
+		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore.js", 'utf8'
+		serverRequire '/m/underscore/0.0.0', {}, (errors, results)->
+			test.ifError errors
+			test.equal results['/m/underscore/0.0.0'], contents, 'Should get file contents of main js file'
+			test.done()
+	
+	standardPackageSubFile : (test)->
+		test.expect 2
+		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore-min.js", 'utf8'
+		serverRequire '/m/underscore/1.4.2/underscore-min.js', {}, (errors, results)->
+			test.ifError errors
+			test.equal results['/m/underscore/1.4.2/underscore-min.js'], contents, 'Should get file contents of main js file'
+			test.done()
+	
+	standardPackageDefaultVersionSubFile : (test)->
+		test.expect 2
+		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore-min.js", 'utf8'
+		serverRequire '/m/underscore/0.0.0/underscore-min.js', {}, (errors, results)->
+			test.ifError errors
+			test.equal results['/m/underscore/0.0.0/underscore-min.js'], contents, 'Should get file contents of main js file'
 			test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
@@ -292,6 +328,9 @@ tieRequestToTest = (callback)->
 
 require 'mundle/lib/client.js'
 
+### 
+	Currently we're not supporting versioning. But some of the client-side work for it was done already, so the tests exercise those cases.
+###
 exports.testResolvePath =
 	relative : (test)->
 		test.expect 1
