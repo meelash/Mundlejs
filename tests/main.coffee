@@ -116,6 +116,7 @@ exports.testSetBasePath =
 ### 
 	Currently we're not supporting versioning. But some of the client-side work for it was done already, so the tests exercise those cases.
 ###
+# 'nested' refers to parsed synchronous require calls in a file vs. top level, i.e. an asynchronous require
 exports.testMundle =
 	standardPackage : (test)->
 		test.expect 2
@@ -148,6 +149,18 @@ exports.testMundle =
 			test.ifError errors
 			test.equal results['/m/underscore/0.0.0/underscore-min.js'], contents, 'Should get file contents of main js file'
 			test.done()
+	
+	nestedDependencies : (test)->
+		test.expect 1
+		test.done()
+	
+	noPackageJsonWithIndexJs : (test)->
+		test.expect 1
+		test.done()
+	
+	noPackageJsonWithMainJs : (test)->
+		test.expect 1
+		test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
 exports.testErrorFormatting =
@@ -198,6 +211,10 @@ exports.testErrorFormatting =
 			test.equal errors['/b/something/Hidden1.js'].message, 'Unable to read file'
 			test.equal errors['/b/something/Hidden1.js'].path, '../something/Hidden1.js'
 			test.done()
+	
+	mundleCouldntResolveFile : (test)->
+		test.expect 1
+		test.done()
 
 exports.testCache =
 	setUp : (callback)->
