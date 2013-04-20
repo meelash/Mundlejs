@@ -120,34 +120,34 @@ exports.testSetBasePath =
 exports.testMundle =
 	standardPackage : (test)->
 		test.expect 2
-		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore.js", 'utf8'
-		serverRequire '/m/underscore/1.4.2', {}, (errors, results)->
+		contents = fs.readFileSync "#{__dirname}/mundles/testMundle1/underscore.js", 'utf8'
+		serverRequire '/m/testMundle1/1.4.2', {}, (errors, results)->
 			test.ifError errors
-			test.equal results['/m/underscore/1.4.2'], contents, 'Should get file contents of main js file'
+			test.equal results['/m/testMundle1/1.4.2'], contents, 'Should get file contents of main js file'
 			test.done()
 	
 	standardPackageDefaultVersion : (test)->
 		test.expect 2
-		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore.js", 'utf8'
-		serverRequire '/m/underscore/0.0.0', {}, (errors, results)->
+		contents = fs.readFileSync "#{__dirname}/mundles/testMundle1/underscore.js", 'utf8'
+		serverRequire '/m/testMundle1/0.0.0', {}, (errors, results)->
 			test.ifError errors
-			test.equal results['/m/underscore/0.0.0'], contents, 'Should get file contents of main js file'
+			test.equal results['/m/testMundle1/0.0.0'], contents, 'Should get file contents of main js file'
 			test.done()
 	
 	standardPackageSubFile : (test)->
 		test.expect 2
-		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore-min.js", 'utf8'
-		serverRequire '/m/underscore/1.4.2/underscore-min.js', {}, (errors, results)->
+		contents = fs.readFileSync "#{__dirname}/mundles/testMundle1/underscore-min.js", 'utf8'
+		serverRequire '/m/testMundle1/1.4.2/underscore-min.js', {}, (errors, results)->
 			test.ifError errors
-			test.equal results['/m/underscore/1.4.2/underscore-min.js'], contents, 'Should get file contents of main js file'
+			test.equal results['/m/testMundle1/1.4.2/underscore-min.js'], contents, 'Should get file contents of main js file'
 			test.done()
 	
 	standardPackageDefaultVersionSubFile : (test)->
 		test.expect 2
-		contents = fs.readFileSync "#{__dirname}/mundles/underscore/underscore-min.js", 'utf8'
-		serverRequire '/m/underscore/0.0.0/underscore-min.js', {}, (errors, results)->
+		contents = fs.readFileSync "#{__dirname}/mundles/testMundle1/underscore-min.js", 'utf8'
+		serverRequire '/m/testMundle1/0.0.0/underscore-min.js', {}, (errors, results)->
 			test.ifError errors
-			test.equal results['/m/underscore/0.0.0/underscore-min.js'], contents, 'Should get file contents of main js file'
+			test.equal results['/m/testMundle1/0.0.0/underscore-min.js'], contents, 'Should get file contents of main js file'
 			test.done()
 	
 	nestedDependencies : (test)->
