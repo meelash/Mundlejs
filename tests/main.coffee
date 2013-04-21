@@ -113,7 +113,10 @@ exports.testSetBasePath =
 			test.deepEqual results, {'/b/testFile1.js' : 'Hello, mundlejs!!'}, errors
 			test.done()
 
+exports.testDependencyResolution = {}
+
 ### 
+	The Mundle in "testMundle" actually refers to the packages installed by mundle install.
 	Currently we're not supporting versioning. But some of the client-side work for it was done already, so the tests exercise those cases.
 ###
 # 'nested' refers to parsed synchronous require calls in a file vs. top level, i.e. an asynchronous require
@@ -150,9 +153,16 @@ exports.testMundle =
 			test.equal results['/m/testMundle1/0.0.0/underscore-min.js'], contents, 'Should get file contents of main js file'
 			test.done()
 	
-	nestedDependencies : (test)->
-		test.expect 1
-		test.done()
+	mundleNestedDependencyPathResolution : (test)->
+		test.expect 6
+		serverRequire '/m/testMundleNestedDependencies/0.0.0', {}, (errors, results)->
+			test.ok ((Object.keys results).indexOf '/m/testMundleNestedDependencies/0.0.0/foo.js') isnt -1, 'Relative path as a mundle nested dependency'
+			test.ok ((Object.keys results).indexOf '/b/bar/foo.js') isnt -1, 'Absolute path as a mundle nested dependency'
+			test.ok ((Object.keys results).indexOf '/m/foo/0.0.0') isnt -1, 'Mundle as a mundle nested dependency'
+			test.ok ((Object.keys results).indexOf '/m/foo/1.1.1') isnt -1, 'Mundle with version as a mundle nested dependency'
+			test.ok ((Object.keys results).indexOf '/m/foo/0.0.0/bar.js') isnt -1, 'Mundle and a relative path as a mundle nested dependency'
+			test.ok ((Object.keys results).indexOf '/m/foo/1.1.1/bar.js') isnt -1, 'Mundle with version and a relative path as a mundle nested dependency'
+			test.done()
 	
 	noPackageJsonWithIndexJs : (test)->
 		test.expect 1
