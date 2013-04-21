@@ -24,10 +24,11 @@ path = require 'path'
 url = require 'url'
 findRequires = require 'find-requires'
 
-pkgCache = {}
+pkgCache = {} # cache of requests served
 indexCache = {}
 fileCache = {}
-packageCache = {}
+versionCache = {}
+packageCache = {} # package.json cache
 basePath = '/'
 mundlesPath = path.resolve './mundles'
 loadedPlugins = {}
@@ -93,6 +94,7 @@ class MundleFile
 	basePrefix = '/b'
 	mundlePrefix = '/m'
 	# utility to convert paths in synchronous dependencies to the exact resolution asynchronous dependencies receive on the client-side.
+	# FIXME: seems like errors thrown here will fail silently. e.g. try to console.log any undefined variable and then run the tests.
 	getClientPath:->
 		return @clientPath if @clientPath?
 		
@@ -118,7 +120,7 @@ class MundleFile
 		# mundle paths
 		else
 			match = /^(.*?)((@)(.*?))?(\/.*)?$/.exec relPath
-			version = match[4] or cache.versions[match[1]] or '0.0.0'
+			version = match[4] or versionCache[match[1]] or '0.0.0'
 			clientPath = "#{mundlePrefix}/#{match[1]}/#{version}"
 			if (subDir = match[5])?
 				clientPath += subDir
