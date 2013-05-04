@@ -167,10 +167,6 @@ exports.testMundle =
 	noPackageJsonWithIndexJs : (test)->
 		test.expect 1
 		test.done()
-	
-	noPackageJsonWithMainJs : (test)->
-		test.expect 1
-		test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
 exports.testErrorFormatting =
