@@ -5,5 +5,5 @@
   "keywords"      : ["util", "functional", "server", "client", "browser"],
   "author"        : "Saleem Abdul Hamid <meelash@gmail.com>",
   "repository"    : {"type": "git", "url": "git://github.com/meelash/mundlejs.git"},
-  "main"          : "index.js"
+  "main"          : "foo.js"
 }
