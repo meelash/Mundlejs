@@ -166,8 +166,8 @@ exports.testMundle =
 	
 	noPackageJson : (test)->
 		test.expect 1
-		serverRequire '/m/testMundleNoPackageJsonIndexJs/0.0.0', {}, (errors, results)->
-			test.equals results['/m/testMundleNoPackageJsonIndexJs/0.0.0'], 'testMundleNoPackageJsonIndexJs works!!', 'Contents should be loaded from index.js'
+		serverRequire '/m/testMundleNoPackageJson/0.0.0', {}, (errors, results)->
+			test.equals results['/m/testMundleNoPackageJson/0.0.0'], 'testMundleNoPackageJson works!!', 'Contents should be loaded from index.js'
 		test.done()
 	
 	noMainInPackageJson : (test)->

@@ -1,1 +1,0 @@
-testMundleNoPackageJsonIndexJs works!!
