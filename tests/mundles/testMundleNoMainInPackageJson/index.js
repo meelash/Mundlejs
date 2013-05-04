@@ -1,0 +1,1 @@
+testMundleNoMainInPackageJson works!!

@@ -164,8 +164,16 @@ exports.testMundle =
 			test.ok ((Object.keys results).indexOf '/m/foo/1.1.1/bar.js') isnt -1, 'Mundle with version and a relative path as a mundle nested dependency'
 			test.done()
 	
-	noPackageJsonWithIndexJs : (test)->
+	noPackageJson : (test)->
 		test.expect 1
+		serverRequire '/m/testMundleNoPackageJsonIndexJs/0.0.0', {}, (errors, results)->
+			test.equals results['/m/testMundleNoPackageJsonIndexJs/0.0.0'], 'testMundleNoPackageJsonIndexJs works!!', 'Contents should be loaded from index.js'
+		test.done()
+	
+	noMainInPackageJson : (test)->
+		test.expect 1
+		serverRequire '/m/testMundleNoMainInPackageJson/0.0.0', {}, (errors, results)->
+			test.equals results['/m/testMundleNoMainInPackageJson/0.0.0'], 'testMundleNoMainInPackageJson works!!', 'Contents should be loaded from index.js'
 		test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
