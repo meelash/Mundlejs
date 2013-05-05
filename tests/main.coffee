@@ -167,14 +167,14 @@ exports.testMundle =
 	noPackageJson : (test)->
 		test.expect 1
 		serverRequire '/m/testMundleNoPackageJson/0.0.0', {}, (errors, results)->
-			test.equals results['/m/testMundleNoPackageJson/0.0.0'], 'testMundleNoPackageJson works!!', 'Contents should be loaded from index.js'
-		test.done()
+			test.equal results['/m/testMundleNoPackageJson/0.0.0'], 'testMundleNoPackageJson works!!', 'Contents should be loaded from index.js'
+			test.done()
 	
 	noMainInPackageJson : (test)->
 		test.expect 1
 		serverRequire '/m/testMundleNoMainInPackageJson/0.0.0', {}, (errors, results)->
-			test.equals results['/m/testMundleNoMainInPackageJson/0.0.0'], 'testMundleNoMainInPackageJson works!!', 'Contents should be loaded from index.js'
-		test.done()
+			test.equal results['/m/testMundleNoMainInPackageJson/0.0.0'], 'testMundleNoMainInPackageJson works!!', 'Contents should be loaded from index.js'
+			test.done()
 
 # 'nested' refers to parsed synchronous require calls in a file vs. a top level error in an asynchronous require
 exports.testErrorFormatting =
@@ -227,8 +227,11 @@ exports.testErrorFormatting =
 			test.done()
 	
 	mundleCouldntResolveFile : (test)->
-		test.expect 1
-		test.done()
+		test.expect 2
+		serverRequire '/m/testErrorFormattingMundleCouldntResolveFile/0.0.0', {}, (errors, results)->
+			test.equal errors['/m/testErrorFormattingMundleCouldntResolveFile/0.0.0'].message, 'Unable to read file', 'Check error message'
+			test.equal errors['/m/testErrorFormattingMundleCouldntResolveFile/0.0.0'].path, '/m/testErrorFormattingMundleCouldntResolveFile/0.0.0', 'Check error path'
+			test.done()
 
 exports.testCache =
 	setUp : (callback)->

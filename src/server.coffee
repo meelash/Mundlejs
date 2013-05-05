@@ -162,7 +162,8 @@ class MundleFile
 						filename = path.resolve packagePath, pkg.main
 						tryFile filename, (error, absPath)->
 							unless absPath
-								callback new MundleError message : 'need an error message and test!!!'
+								callback new MundleError
+									message : 'Unable to read file'
 							else
 								gotAbsPath absPath, callback
 		else
@@ -211,7 +212,7 @@ readPackage = (requestPath, callback)->
 				{errno, code, syscall} = error
 				console.error error, 'at readPackage'
 				return callback new MundleError {
-					message : 'Mundle is missing package.json'
+					message : 'Error reading mundle package.json'
 					errno
 					code
 					syscall
