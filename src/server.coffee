@@ -32,6 +32,7 @@ packageCache = {} # package.json cache
 basePath = '/'
 mundlesPath = path.resolve './mundles'
 loadedPlugins = {}
+defaultPackageMain = 'index.js'
 
 # If obj.hasOwnProperty has been overridden, then calling
 # obj.hasOwnProperty(prop) will break.
@@ -156,14 +157,12 @@ class MundleFile
 					if error
 						callback error
 					else
+						unless pkg.main?
+							pkg.main = defaultPackageMain
 						filename = path.resolve packagePath, pkg.main
 						tryFile filename, (error, absPath)->
 							unless absPath
-								tryFile (path.resolve filename, 'index.js'), (error, absPath)->
-									unless absPath
-										callback new MundleError message : 'need an error message and test!!!'
-									else
-										gotAbsPath absPath, callback
+								callback new MundleError message : 'need an error message and test!!!'
 							else
 								gotAbsPath absPath, callback
 		else
@@ -202,23 +201,28 @@ readPackage = (requestPath, callback)->
 	if (hasOwnProperty(packageCache, requestPath))
 		return callback undefined, packageCache[requestPath]
 	jsonPath = path.resolve(requestPath, 'package.json')
-	fs.readFile jsonPath, 'utf8', (error, json)->
-		if error?
-			{errno, code, syscall} = error
-			console.error error, 'at readPackage'
-			return callback new MundleError {
-				message : 'Mundle is missing package.json'
-				errno
-				code
-				syscall
-			}
-		try
-			pkg = packageCache[requestPath] = JSON.parse(json)
-		catch e
-			e.path = jsonPath
-			e.message = 'Error parsing ' + jsonPath + ': ' + e.message
-			error = new MundleError e
-		callback error, pkg
+	fs.exists jsonPath, (exists)->
+		unless exists
+			pkg = packageCache[requestPath] = {}
+			return callback undefined, pkg
+		# FIXME: Why does fs.readFile fail silently if no file exists at jsonPath? is this a node bug? (0.10.4)
+		fs.readFile jsonPath, 'utf8', (error, json)->
+			if error?
+				{errno, code, syscall} = error
+				console.error error, 'at readPackage'
+				return callback new MundleError {
+					message : 'Mundle is missing package.json'
+					errno
+					code
+					syscall
+				}
+			try
+				pkg = packageCache[requestPath] = JSON.parse(json)
+			catch e
+				e.path = jsonPath
+				e.message = 'Error parsing ' + jsonPath + ': ' + e.message
+				error = new MundleError e
+			callback error, pkg
 
 # check if the file exists and is not a directory
 tryFile = (requestPath, callback)->
