@@ -23,10 +23,19 @@
       "url": "http://github.com/meelash/Mundlejs"
     }
   ],
-  "main": "lib/server",
-  "directories.lib": "lib",
+  "main": "./lib/server.js",
+	"bin": "./bin/mundle-cli.js",
+  "directories": {
+		"lib": "./lib",
+		"bin": "./bin"
+	},
+	"preferGlobal": true,
   "dependencies": {
-    "find-requires": "0.1.x"
+    "find-requires": "0.1.x",
+		"bower": "0.9.x",
+		"semver": "~1.1.0",
+    "nopt": "~2.0.0",
+    "update-notifier": "~0.1.3"
   },
   "bugs": {
     "mail": "meelash@gmail.com",
