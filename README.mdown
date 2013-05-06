@@ -36,11 +36,12 @@ npm install mundle
 	* './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
 
 ### Installing mundles
-		mundle install gitRepoAddress
+		mundle install package
+uses bower, so all bower packages are available here: http://sindresorhus.com/bower-components/
 
 ### Defining mundles
-		Do it like npm. Right now, we only use name and version fields.
-		Centralised repo and dependencies coming soon, feedback and contributions will speed them up
+Uses package.json with name, version, and main fields. main defaults to 'index.js'
+mundles are bower packages, so follow their instruction to use the centralized repo and the package dependency resolution: https://github.com/bower/bower
 
 ### Plugins
 		plugin = require(plugin);
