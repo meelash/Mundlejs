@@ -369,21 +369,21 @@ exports.testResolvePath =
 	relative : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/b/foo.js?=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/b/foo.js?=1', 'proper request should be formed'
 			test.done()
 		window.require './bar/../foo.js'
 	
 	absolute : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/b/bar/foo.js?=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/b/bar/foo.js?=1', 'proper request should be formed'
 			test.done()
 		window.require '/bar/foo.js'
 		
 	subFileRelative : (test)->
 		test.expect 2
 		tieRequestToTest (request, requestFn)->
-			test.equal request, 'http://test:1111/mundlejs/b/bar/foo1.js?=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/b/bar/foo1.js?=1', 'proper request should be formed'
 			requestFn.response = JSON.stringify 
 				err: null
 				results:
@@ -396,40 +396,40 @@ exports.testResolvePath =
 			requestFn.onload()
 		window.require '/bar/foo1.js', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/b/bar/foo2.js?/b/bar/foo1.js=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/b/bar/foo2.js?/b/bar/foo1.js=1', 'proper request should be formed'
 				test.done()
 			window.testSubFileRelative './foo2.js'
 	
 	subFileAbsolute : (test)->
 		test.expect 1
 		tieRequestToTest (request, requestFn)->
-			test.equal request, 'http://test:1111/mundlejs/b/bar/foo1.js?=1', 'request should not fire because cached'
+			test.equal request, '//test:1111/mundlejs/b/bar/foo1.js?=1', 'request should not fire because cached'
 			requestFn.response = '{}'
 			requestFn.onload()
 		window.require '/bar/foo1.js', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/b/foo2.js?/b/bar/foo1.js=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/b/foo2.js?/b/bar/foo1.js=1', 'proper request should be formed'
 				test.done()
 			window.testSubFileRelative '/foo2.js'
 	
 	mundle : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo/0.0.0?/b/bar/foo1.js=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo/0.0.0?/b/bar/foo1.js=1', 'proper request should be formed'
 			test.done()
 		window.require 'foo'
 		
 	mundleWithVersion : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo/1.1.1?/b/bar/foo1.js=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo/1.1.1?/b/bar/foo1.js=1', 'proper request should be formed'
 			test.done()
 		window.require 'foo@1.1.1'
 	
 	mundlePreviouslyLoadedWithVersion : (test)->
 		test.expect 2
 		tieRequestToTest (request, requestFn)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo1/1.1.2?/b/bar/foo1.js=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo1/1.1.2?/b/bar/foo1.js=1', 'proper request should be formed'
 			requestFn.response = JSON.stringify 
 				err: null
 				results:
@@ -443,14 +443,14 @@ exports.testResolvePath =
 	mundlePreviouslyLoadedDifferentVersion : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo1/1.1.3?/b/bar/foo1.js=1&/m/foo1/1.1.2=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo1/1.1.3?/b/bar/foo1.js=1&/m/foo1/1.1.2=1', 'proper request should be formed'
 			test.done()
 		window.require 'foo1@1.1.3'
 		
 	mundlePreviouslyLoaded : (test)->
 		test.expect 2
 		tieRequestToTest (request, requestFn)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo2/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo2/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1', 'proper request should be formed'
 			requestFn.response = JSON.stringify 
 				err: null
 				results:
@@ -464,21 +464,21 @@ exports.testResolvePath =
 	mundleWithRel : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo/0.0.0/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo/0.0.0/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
 			test.done()
 		window.require 'foo/bar.js'
 		
 	mundleWithVersionAndRel : (test)->
 		test.expect 1
 		tieRequestToTest (request)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo/1.1.1/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo/1.1.1/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
 			test.done()
 		window.require 'foo@1.1.1/bar.js'
 	
 	mundlePreviouslyLoadedWithRel : (test)->
 		test.expect 2
 		tieRequestToTest (request, requestFn)->
-			test.equal request, 'http://test:1111/mundlejs/m/foo3/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
+			test.equal request, '//test:1111/mundlejs/m/foo3/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1', 'proper request should be formed'
 			requestFn.response = JSON.stringify 
 				err: null
 				results:
@@ -491,7 +491,7 @@ exports.testResolvePath =
 			requestFn.onload()
 		window.require 'foo3', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/m/foo3/1.1.1/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/m/foo3/1.1.1/bar.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
 				test.done()
 			window.require 'foo3/bar.js'
 	
@@ -499,7 +499,7 @@ exports.testResolvePath =
 		test.expect 1
 		window.require 'foo3', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/m/foo3/1.1.1/baz.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/m/foo3/1.1.1/baz.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
 				test.done()
 			window.testSubFile './baz.js'
 	
@@ -507,7 +507,7 @@ exports.testResolvePath =
 		test.expect 1
 		window.require 'foo3', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/b/baz.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/b/baz.js?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
 				test.done()
 			window.testSubFile '/baz.js'
 	
@@ -515,7 +515,7 @@ exports.testResolvePath =
 		test.expect 1
 		window.require 'foo3', ->
 			tieRequestToTest (request)->
-				test.equal request, 'http://test:1111/mundlejs/m/baz/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
+				test.equal request, '//test:1111/mundlejs/m/baz/0.0.0?/b/bar/foo1.js=1&/m/foo1/1.1.2=1&/m/foo2/1.1.4=1&/m/foo3/1.1.1=1', 'proper request should be formed'
 				test.done()
 			window.testSubFile 'baz'
 
