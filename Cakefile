@@ -22,7 +22,7 @@ task 'test', 'Run the automated tests', ()->
 		
 		# "install" mundle by compiling the relevant files and placing them in their appropriate locations
 		exec 'cp ./package.json ./tmp/mundleTest/node_modules/mundle'
-		exec 'coffee -o ./tmp/mundleTest/node_modules/mundle/lib -c ./src/*.coffee
+		exec 'cp ./lib/* ./tmp/mundleTest/node_modules/mundle/lib
 		&& coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee
 		&& coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee', ()->
 			# with environment completely set up, start the tests
@@ -33,6 +33,9 @@ task 'test', 'Run the automated tests', ()->
 	catch error
 		# if anything goes wrong, clean up the temporary directory
 		exec 'rm -Rf ./tmp'
+
+task 'build', 'Build the javascript output', ()->
+	exec 'coffee -o ./lib/ -c ./src/*.coffee'
 
 task 'benchmark', 'Benchmark serving files', ()->
 	try
