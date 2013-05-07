@@ -44,5 +44,8 @@
   "devDependencies": {
     "mundle-coffee-script": "0.0.0",
     "mundle-jade": "0.0.0"
-  }
+  },
+	"scripts": {
+		"test": "cake test"
+	}
 }
