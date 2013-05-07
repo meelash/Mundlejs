@@ -1,6 +1,6 @@
 {
   "name": "mundle",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A client-side module loader with server-side bundler and cacher",
   "keywords": [
     "module loader",
@@ -11,12 +11,7 @@
     "javascript file server"
   ],
   "author": "Saleem Abdul Hamid <meelash@gmail.com>",
-  "licenses": [
-    {
-      "type": "GPL-3.0",
-      "url": "http://www.opensource.org/licenses/GPL-3.0"
-    }
-  ],
+  "license" : "MIT",
   "repositories": [
     {
       "type": "git",

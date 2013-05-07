@@ -95,5 +95,5 @@ or
 * http://saleemabdulhamid.com/blog/2012/07/big-improvements
 
 
-Copyright (C) 2012 Saleem Abdul Hamid		
-Licensed under the GPL license
+Copyright (C) 2013 Saleem Abdul Hamid		
+Licensed under the MIT license
