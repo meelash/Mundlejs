@@ -44,7 +44,11 @@
     "nodeunit": "0.8.x",
     "coffee-script": "1.6.x",
     "mundle-coffee-script": "0.0.0",
-    "mundle-jade": "0.0.0"
+    "mundle-jade": "0.0.0",
+    "phantom": "0.4.x",
+    "mocks": "0.0.x",
+    "connect": "2.7.x",
+    "superagent": "0.14.x"
   },
   "scripts": {
     "test": "./node_modules/.bin/cake test",
