@@ -1,6 +1,6 @@
 {
   "name": "mundle",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A client-side module loader with server-side bundler and cacher",
   "keywords": [
     "module loader",
@@ -24,16 +24,16 @@
     }
   ],
   "main": "./lib/server.js",
-	"bin": "./bin/mundle-cli.js",
+  "bin": "./bin/mundle-cli.js",
   "directories": {
-		"lib": "./lib",
-		"bin": "./bin"
-	},
-	"preferGlobal": true,
+    "lib": "./lib",
+    "bin": "./bin"
+  },
+  "preferGlobal": true,
   "dependencies": {
     "find-requires": "0.1.x",
-		"bower": "0.9.x",
-		"semver": "~1.1.0",
+    "bower": "0.9.x",
+    "semver": "~1.1.0",
     "nopt": "~2.0.0",
     "update-notifier": "~0.1.3"
   },
@@ -45,7 +45,7 @@
     "mundle-coffee-script": "0.0.0",
     "mundle-jade": "0.0.0"
   },
-	"scripts": {
-		"test": "cake test"
-	}
+  "scripts": {
+    "test": "cake test"
+  }
 }
