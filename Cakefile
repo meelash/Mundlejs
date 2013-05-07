@@ -27,9 +27,12 @@ task 'test', 'Run the automated tests', ()->
 		&& coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee', ()->
 			# with environment completely set up, start the tests
 			process.chdir('./tmp/mundleTest')
-			reporter.run ['./main.js'], null, ->
+			reporter.run ['./main.js'], null, (err)->
 				# when complete, remove the temporary directory
 				exec 'cd ../.. && rm -Rf ./tmp'
+				if err
+					process.exit(1)
+				process.exit(0)
 	catch error
 		# if anything goes wrong, clean up the temporary directory
 		exec 'rm -Rf ./tmp'
