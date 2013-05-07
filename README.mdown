@@ -4,6 +4,7 @@
 
 Module bundler, cacher, and client-side loader	
 Demonstration:
+* Demo http://www.youtube.com/watch?v=ols__laR6GE
 * Basics http://screencast.com/t/nOU53BRYUAX	
 * Plugins http://screencast.com/t/r1qtLvX44I	
 Discussion:
