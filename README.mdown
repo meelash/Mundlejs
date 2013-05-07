@@ -1,5 +1,7 @@
 # Mundlejs
 
+[![Build Status](https://travis-ci.org/meelash/Mundlejs.png)](https://travis-ci.org/meelash/Mundlejs)
+
 Module bundler, cacher, and client-side loader	
 Demonstration:
 * Basics http://screencast.com/t/nOU53BRYUAX	
