@@ -8,7 +8,17 @@ Demonstration:
 * Basics http://screencast.com/t/nOU53BRYUAX	
 * Plugins http://screencast.com/t/r1qtLvX44I	
 Discussion:
-https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
+* https://groups.google.com/forum/?fromgroups#!topic/nodejs/BQn0aH1qTpE
+
+Mundlejs is *the* next generation client-side package manager. It does all the things we've come to expect a decent package manager to do and more. For example:
+* Unobtrusive and compatible- All you have to do to define a package is define its exports, using module.exports, just like you're know and love from node.js. Real reuse of js between node and the client. All those little helpers and utilities now only need to exist in one place in your codebase and there are no special build steps to convert between them.
+* Simple but powerful syntax for client-side script loading- Based on the syntax of your require statements it is very natural to define which dependencies will be required immediately and which can be loaded asynchronously. This means you can keep your client-side code as modular as you've been keeping your server-side code and as it should be. At the same time, there's no build step or concatenation of scripts; rather, mundle smartly loads exactly the dependencies your application needs in one, optimized request.
+* Share packages in a centralized repository- Using the bower api, mundle has built-in package support. That means using a new library or module is as simple as one "mundle install package" and one "var packageFunction = require('package')"
+* Super fast-
+	* Only the code you actually need is served in each request, not your entire codebase. You define small, smart dependencies. Then you define which dependencies are necessary immediately and which can be deferred and fetched asynchronously. But you don't have to think about it- the syntax is very natural. Then mundle takes care of packaging into exactly optimized packages.
+	* Mundle uses cacheing all over the place to be able to serve requests fast, fast, fast. See the blog posts below for testing results.
+	* Coming soon- cdn plugins that will serve your cached bundles from cdn.
+* Parseing plugins- Mundle supports plugins for compiling source files- so using coffee, jade-templates, etc. is a breeze
 
 ## Installation
 npm install mundle
@@ -37,6 +47,20 @@ npm install mundle
 * somePath can be
 	* 'moduleName[@version]' resolves to server-side basePath/mundles/moduleName/(version|default)
 	* './some/relative/path/to/file.js' resolves to server-side basePath/some/relative/path/to/file.js
+* in this form, somePath will be loaded asynchronously as the syntax suggests
+
+Inside a file, you can require use an asynchronous syntax (and delay loading that bundle until the require is executed) or using a synchronous syntax:
+
+		someModule = require('somePath')
+* somePath is resolved as before
+* in this form, somePath is bundled with the file containing this require and returned in the same request as a dependency. When this line executes, the code is already available and just needs to be executed.
+
+### What do modules look like:
+* one module per file
+* the syntax for exports should look familiar :) :
+
+		module.exports = whateverYouWant
+* Yes, that is all.
 
 ### Installing mundles
 		mundle install package
