@@ -43,7 +43,8 @@
     "phantom": "0.4.x",
     "mocks": "0.0.x",
     "connect": "2.7.x",
-    "superagent": "0.14.x"
+    "superagent": "0.14.x",
+    "execSync": "0.0.x"
   },
   "scripts": {
     "test": "./node_modules/.bin/cake test",

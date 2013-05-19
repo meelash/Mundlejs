@@ -1,5 +1,12 @@
+testFiles = [
+  './fileServer.js'
+	'./serverSideMundle.js'
+	'./clientSideMundle.js'
+]
+
 fs = require 'fs'
-{exec} = require 'child_process'
+path = require 'path'
+{exec} = require 'execSync'
 reporter = require('nodeunit').reporters.default
 
 # Cleanup temporary files if anything goes wrong
@@ -24,15 +31,17 @@ task 'test', 'Run the automated tests', ()->
 		exec 'cp ./package.json ./tmp/mundleTest/node_modules/mundle'
 		exec 'cp ./lib/* ./tmp/mundleTest/node_modules/mundle/lib
 		&& coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee
-		&& coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee', ()->
-			# with environment completely set up, start the tests
-			process.chdir('./tmp/mundleTest')
-			reporter.run ['./main.js'], null, (err)->
-				# when complete, remove the temporary directory
-				exec 'cd ../.. && rm -Rf ./tmp'
-				if err
-					process.exit(1)
-				process.exit(0)
+		&& coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee'
+		for file in testFiles
+			console.log exec "coffee -o ./tmp/mundleTest/ -c ./tests/auto/#{file.replace /.js$/, '.coffee'}"
+		# with environment completely set up, start the tests
+		process.chdir('./tmp/mundleTest')
+		reporter.run testFiles, null, (err)->
+			# when complete, remove the temporary directory
+			exec 'cd ../.. && rm -Rf ./tmp'
+			if err
+				process.exit(1)
+			process.exit(0)
 	catch error
 		# if anything goes wrong, clean up the temporary directory
 		exec 'rm -Rf ./tmp'
@@ -52,7 +61,7 @@ task 'benchmark', 'Benchmark serving files', ()->
 		
 		
 		exec 'coffee -o ./tmp/mundleBenchmark/node_modules/mundle/lib -c ./src/*.coffee
-		&& coffee -o ./tmp/mundleBenchmark/ -c ./tests/benchmark/*.coffee', ()->
-			require './tmp/mundleBenchmark/main.js'
+		&& coffee -o ./tmp/mundleBenchmark/ -c ./tests/benchmark/*.coffee'
+		require './tmp/mundleBenchmark/main.js'
 	catch error
 		exec 'rm -Rf ./tmp'
