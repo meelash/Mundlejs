@@ -2,7 +2,7 @@ serverRequire = require 'mundle'
 fs = require 'fs'
 path = require 'path'
 {loadFile} = require 'mocks'
-exposedServerRequire = loadFile "#{__dirname}/node_modules/mundle/lib//exposed/server.js"
+exposedServerRequire = loadFile "#{__dirname}/node_modules/mundle/lib/exposed/server.js"
 
 # 
 # 

@@ -30,10 +30,10 @@ task 'test', 'Run the automated tests', ()->
 		# "install" mundle by compiling the relevant files and placing them in their appropriate locations
 		exec 'cp ./package.json ./tmp/mundleTest/node_modules/mundle'
 		exec 'cp ./lib/* ./tmp/mundleTest/node_modules/mundle/lib
-		&& coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee
-		&& coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee'
+		&& coffee -o ./tmp/mundleTest/ -c ./tests/main.coffee'
+		exec 'coffee -bo ./tmp/mundleTest/node_modules/mundle/lib/exposed -c ./src/server.coffee'
 		for file in testFiles
-			console.log exec "coffee -o ./tmp/mundleTest/ -c ./tests/auto/#{file.replace /.js$/, '.coffee'}"
+			exec "coffee -o ./tmp/mundleTest/ -c ./tests/auto/#{file.replace /.js$/, '.coffee'}"
 		# with environment completely set up, start the tests
 		process.chdir('./tmp/mundleTest')
 		reporter.run testFiles, null, (err)->
