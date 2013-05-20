@@ -2,6 +2,7 @@ testFiles = [
   './fileServer.js'
 	'./serverSideMundle.js'
 	'./clientSideMundle.js'
+	'./cdnPlugin.js'
 ]
 
 fs = require 'fs'
