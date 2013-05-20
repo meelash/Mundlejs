@@ -3,8 +3,12 @@
 branch=`git rev-parse --abbrev-ref HEAD`
 echo 'Committing branch- '$branch
 
-exit_code=$(cake test > /dev/null 2>/dev/null)$?
-if [ $exit_code -gt 0 ]
-  then echo "Did not Commit because of failing tests. Exit code: "$exit_code
+if [ $branch == 'master' ]; then
+	exit_code=$(cake test > /dev/null 2>/dev/null)$?
+	if [ $exit_code -gt 0 ]
+	  then echo "Did not Commit because of failing tests. Exit code: "$exit_code
+	fi
+	exit $exit_code
 fi
-exit $exit_code
+
+exit 0
