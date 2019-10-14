@@ -27,7 +27,7 @@
   "dependencies": {
     "find-requires": "0.1.x",
     "bower": "0.9.x",
-    "semver": "~1.1.0",
+    "semver": "~6.3.0",
     "nopt": "~2.0.0",
     "update-notifier": "~0.1.3"
   },
